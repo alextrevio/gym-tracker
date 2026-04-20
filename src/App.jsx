@@ -449,678 +449,898 @@ const vibrate = (pattern) => {
 // EXERCISE ANIMATIONS — SVG with internal CSS keyframes
 // ============================================================
 
-const animBase = "w-full h-full";
-const stroke = "white";
-const sw = 7;
 
-// Helper: 2-frame flipbook with smooth crossfade
-const useFlipKeys = (id) => `
-  @keyframes ${id}-fa { 0%,42% { opacity: 1 } 50%,92% { opacity: 0 } 100% { opacity: 1 } }
-  @keyframes ${id}-fb { 0%,42% { opacity: 0 } 50%,92% { opacity: 1 } 100% { opacity: 0 } }
-  .${id}-a { animation: ${id}-fa 1.8s ease-in-out infinite; }
-  .${id}-b { animation: ${id}-fb 1.8s ease-in-out infinite; }
-`;
+// NEW ANIMATIONS — to replace old ones in App.jsx
+
+const animBase = "w-full h-full overflow-visible";
+const W = "white";
+const L = { sw_torso: 9, sw_limb: 7, sw_arm: 6, r_head: 11, r_foot: 5 };
+
+// Shared label helpers (inline SVG text)
+const Label = ({ accent, phase, cue, x = 12, y = 22 }) => (
+  <>
+    <text x={x} y={y} fill={accent} fontFamily="'Bebas Neue', Impact, sans-serif" fontSize="13" letterSpacing="2">{phase}</text>
+    <text x={x} y={y + 13} fill="#a8a29e" fontFamily="'Manrope', sans-serif" fontSize="8">{cue}</text>
+  </>
+);
 
 function SquatAnim({ accent }) {
   return (
-    <svg viewBox="0 0 200 280" className={animBase}>
-      <style>{useFlipKeys('sq')}</style>
-      <line x1="15" y1="270" x2="185" y2="270" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Frame A — standing */}
-      <g className="sq-a">
-        <rect x="35" y="48" width="130" height="6" fill={accent} rx="3" />
-        <circle cx="35" cy="51" r="14" fill={accent} />
-        <circle cx="165" cy="51" r="14" fill={accent} />
-        <circle cx="100" cy="33" r="13" fill={stroke} />
-        <line x1="100" y1="46" x2="100" y2="135" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="100" y1="60" x2="65" y2="55" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="60" x2="135" y2="55" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="92" y1="135" x2="92" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="108" y1="135" x2="108" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+    <svg viewBox="0 0 220 310" className={animBase}>
+      <defs><filter id="sq-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="295" x2="205" y2="295" stroke={W} strokeWidth="2" opacity="0.2" />
+      <line x1="110" y1="65" x2="110" y2="295" stroke={W} strokeWidth="1" opacity="0.1" strokeDasharray="2 3" />
+      <text x="110" y="307" fill={W} fontFamily="Manrope" fontSize="7" opacity="0.45" textAnchor="middle">mid-pie</text>
+      <g className="anim-muscle">
+        <ellipse cx="100" cy="205" rx="6" ry="22" fill={accent} filter="url(#sq-blur)" />
+        <ellipse cx="120" cy="205" rx="6" ry="22" fill={accent} filter="url(#sq-blur)" />
       </g>
-      {/* Frame B — bottom */}
-      <g className="sq-b">
-        <rect x="35" y="118" width="130" height="6" fill={accent} rx="3" />
-        <circle cx="35" cy="121" r="14" fill={accent} />
-        <circle cx="165" cy="121" r="14" fill={accent} />
-        <circle cx="100" cy="103" r="13" fill={stroke} />
-        <line x1="100" y1="116" x2="105" y2="195" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="100" y1="130" x2="65" y2="125" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="130" x2="135" y2="125" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        {/* Bent legs */}
-        <line x1="105" y1="195" x2="70" y2="225" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="70" y1="225" x2="92" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="105" y1="195" x2="140" y2="225" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="140" y1="225" x2="108" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+      <line className="anim-arrow" x1="82" y1="80" x2="82" y2="160" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="79,158 85,158 82,164" fill={accent} opacity="0.6" />
+      <polygon points="79,82 85,82 82,76" fill={accent} opacity="0.6" />
+      <g className="anim-fade-a">
+        <rect x="65" y="70" width="90" height="6" fill={accent} rx="3" />
+        <circle cx="65" cy="73" r="14" fill={accent} />
+        <circle cx="155" cy="73" r="14" fill={accent} />
+        <circle cx="110" cy="55" r={L.r_head} fill={W} />
+        <line x1="110" y1="66" x2="110" y2="160" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="110" y1="82" x2="80" y2="77" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="110" y1="82" x2="140" y2="77" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="105" y1="160" x2="102" y2="225" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="102" y1="225" x2="102" y2="288" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="115" y1="160" x2="118" y2="225" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="118" y1="225" x2="118" y2="288" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="102" cy="290" r={L.r_foot} fill={W} />
+        <circle cx="118" cy="290" r={L.r_foot} fill={W} />
       </g>
+      <g className="anim-fade-b">
+        <rect x="60" y="118" width="90" height="6" fill={accent} rx="3" />
+        <circle cx="60" cy="121" r="14" fill={accent} />
+        <circle cx="150" cy="121" r="14" fill={accent} />
+        <circle cx="107" cy="103" r={L.r_head} fill={W} />
+        <line x1="107" y1="114" x2="105" y2="210" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="107" y1="130" x2="76" y2="125" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="107" y1="130" x2="137" y2="125" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="100" y1="210" x2="82" y2="225" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="82" y1="225" x2="102" y2="288" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="110" y1="210" x2="138" y2="225" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="138" y1="225" x2="118" y2="288" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="102" cy="290" r={L.r_foot} fill={W} />
+        <circle cx="118" cy="290" r={L.r_foot} fill={W} />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. INICIO" cue="Pies al ancho de hombros" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. PROFUNDIDAD" cue="Cadera debajo de rodilla" /></g>
     </svg>
   );
 }
 
 function BenchAnim({ accent }) {
   return (
-    <svg viewBox="0 0 240 200" className={animBase}>
-      <style>{useFlipKeys('bp')}</style>
-      {/* Bench */}
-      <rect x="50" y="120" width="140" height="14" fill={stroke} opacity="0.15" rx="3" />
-      <line x1="60" y1="134" x2="60" y2="180" stroke={stroke} strokeWidth="4" opacity="0.3" />
-      <line x1="180" y1="134" x2="180" y2="180" stroke={stroke} strokeWidth="4" opacity="0.3" />
-      {/* Body lying */}
-      <circle cx="65" cy="110" r="12" fill={stroke} />
-      <line x1="76" y1="115" x2="190" y2="115" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-      <line x1="190" y1="115" x2="200" y2="155" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      <line x1="200" y1="155" x2="220" y2="180" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      {/* Arms — frame A bottom (bar at chest) */}
-      <g className="bp-a">
-        <line x1="135" y1="115" x2="135" y2="100" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="135" y1="100" x2="135" y2="80" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <rect x="100" y="76" width="70" height="6" fill={accent} rx="3" />
-        <circle cx="100" cy="79" r="10" fill={accent} />
-        <circle cx="170" cy="79" r="10" fill={accent} />
+    <svg viewBox="0 0 300 220" className={animBase}>
+      <defs><filter id="bp-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <rect x="60" y="135" width="180" height="12" fill={W} opacity="0.15" rx="3" />
+      <line x1="75" y1="147" x2="75" y2="200" stroke={W} strokeWidth="4" opacity="0.25" />
+      <line x1="225" y1="147" x2="225" y2="200" stroke={W} strokeWidth="4" opacity="0.25" />
+      <line x1="15" y1="205" x2="285" y2="205" stroke={W} strokeWidth="2" opacity="0.2" />
+      <g className="anim-muscle">
+        <ellipse cx="160" cy="123" rx="35" ry="10" fill={accent} filter="url(#bp-blur)" />
       </g>
-      {/* Arms — frame B top (bar extended) */}
-      <g className="bp-b">
-        <line x1="135" y1="115" x2="135" y2="80" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="135" y1="80" x2="135" y2="40" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <rect x="100" y="36" width="70" height="6" fill={accent} rx="3" />
-        <circle cx="100" cy="39" r="10" fill={accent} />
-        <circle cx="170" cy="39" r="10" fill={accent} />
+      <line className="anim-arrow" x1="165" y1="50" x2="165" y2="100" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="162,98 168,98 165,104" fill={accent} opacity="0.6" />
+      <polygon points="162,52 168,52 165,46" fill={accent} opacity="0.6" />
+      {/* Body lying - same in both frames */}
+      <circle cx="85" cy="125" r={L.r_head} fill={W} />
+      <line x1="96" y1="128" x2="225" y2="130" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+      <line x1="225" y1="130" x2="245" y2="170" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      <line x1="245" y1="170" x2="265" y2="200" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      <circle cx="265" cy="200" r={L.r_foot} fill={W} />
+      {/* Frame A - bar at chest */}
+      <g className="anim-fade-a">
+        <line x1="148" y1="128" x2="148" y2="118" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="148" y1="118" x2="148" y2="100" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="182" y1="128" x2="182" y2="118" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="182" y1="118" x2="182" y2="100" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <rect x="115" y="96" width="100" height="6" fill={accent} rx="3" />
+        <circle cx="115" cy="99" r="12" fill={accent} />
+        <circle cx="215" cy="99" r="12" fill={accent} />
       </g>
+      {/* Frame B - bar extended */}
+      <g className="anim-fade-b">
+        <line x1="148" y1="128" x2="148" y2="95" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="148" y1="95" x2="148" y2="55" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="182" y1="128" x2="182" y2="95" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="182" y1="95" x2="182" y2="55" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <rect x="115" y="51" width="100" height="6" fill={accent} rx="3" />
+        <circle cx="115" cy="54" r="12" fill={accent} />
+        <circle cx="215" cy="54" r="12" fill={accent} />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. BAJADA" cue="Barra al pecho medio, codos 75°" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. EMPUJE" cue="Línea recta arriba, sin arquear" /></g>
     </svg>
   );
 }
 
 function DeadliftAnim({ accent }) {
   return (
-    <svg viewBox="0 0 200 280" className={animBase}>
-      <style>{useFlipKeys('dl')}</style>
-      <line x1="15" y1="270" x2="185" y2="270" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Frame A — bottom (bent over, bar on floor) */}
-      <g className="dl-a">
-        <circle cx="100" cy="80" r="12" fill={stroke} />
-        <line x1="100" y1="92" x2="105" y2="155" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="105" y1="155" x2="100" y2="240" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="105" y1="155" x2="80" y2="200" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="80" y1="200" x2="92" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="105" y1="155" x2="130" y2="200" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="130" y1="200" x2="108" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="100" x2="100" y2="245" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <rect x="40" y="248" width="120" height="6" fill={accent} rx="3" />
-        <circle cx="40" cy="251" r="20" fill={accent} />
-        <circle cx="160" cy="251" r="20" fill={accent} />
+    <svg viewBox="0 0 220 310" className={animBase}>
+      <defs><filter id="dl-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="295" x2="205" y2="295" stroke={W} strokeWidth="2" opacity="0.2" />
+      <line x1="110" y1="55" x2="110" y2="295" stroke={W} strokeWidth="1" opacity="0.1" strokeDasharray="2 3" />
+      <g className="anim-muscle">
+        <ellipse cx="110" cy="175" rx="12" ry="14" fill={accent} filter="url(#dl-blur)" />
+        <ellipse cx="100" cy="205" rx="5" ry="18" fill={accent} filter="url(#dl-blur)" />
+        <ellipse cx="120" cy="205" rx="5" ry="18" fill={accent} filter="url(#dl-blur)" />
       </g>
-      {/* Frame B — lockout (standing tall with bar at hip) */}
-      <g className="dl-b">
-        <circle cx="100" cy="35" r="13" fill={stroke} />
-        <line x1="100" y1="48" x2="100" y2="135" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="100" y1="60" x2="100" y2="148" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="92" y1="135" x2="92" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="108" y1="135" x2="108" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <rect x="40" y="145" width="120" height="6" fill={accent} rx="3" />
-        <circle cx="40" cy="148" r="20" fill={accent} />
-        <circle cx="160" cy="148" r="20" fill={accent} />
+      <line className="anim-arrow" x1="80" y1="90" x2="80" y2="260" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="77,258 83,258 80,264" fill={accent} opacity="0.6" />
+      <polygon points="77,92 83,92 80,86" fill={accent} opacity="0.6" />
+      <g className="anim-fade-a">
+        <circle cx="110" cy="105" r={L.r_head} fill={W} />
+        <line x1="112" y1="116" x2="115" y2="180" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="114" y1="130" x2="108" y2="248" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="116" y1="130" x2="122" y2="248" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <rect x="45" y="250" width="130" height="6" fill={accent} rx="3" />
+        <circle cx="45" cy="253" r="22" fill={accent} />
+        <circle cx="175" cy="253" r="22" fill={accent} />
+        <line x1="115" y1="180" x2="90" y2="225" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="90" y1="225" x2="100" y2="288" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="115" y1="180" x2="140" y2="225" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="140" y1="225" x2="120" y2="288" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="100" cy="290" r={L.r_foot} fill={W} />
+        <circle cx="120" cy="290" r={L.r_foot} fill={W} />
       </g>
+      <g className="anim-fade-b">
+        <circle cx="110" cy="55" r={L.r_head} fill={W} />
+        <line x1="110" y1="66" x2="110" y2="160" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="108" y1="78" x2="100" y2="175" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="112" y1="78" x2="120" y2="175" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <rect x="45" y="172" width="130" height="6" fill={accent} rx="3" />
+        <circle cx="45" cy="175" r="22" fill={accent} />
+        <circle cx="175" cy="175" r="22" fill={accent} />
+        <line x1="107" y1="160" x2="102" y2="225" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="102" y1="225" x2="100" y2="288" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="113" y1="160" x2="118" y2="225" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="118" y1="225" x2="120" y2="288" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="100" cy="290" r={L.r_foot} fill={W} />
+        <circle cx="120" cy="290" r={L.r_foot} fill={W} />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. SETUP" cue="Barra sobre mid-pie, cadera alta" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. BLOQUEO" cue="Empuja el suelo, cadera completa" /></g>
     </svg>
   );
 }
 
 function RowAnim({ accent }) {
   return (
-    <svg viewBox="0 0 240 240" className={animBase}>
-      <style>{useFlipKeys('rw')}</style>
-      <line x1="15" y1="230" x2="225" y2="230" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Bent over body (static) */}
-      <circle cx="80" cy="65" r="12" fill={stroke} />
-      <line x1="92" y1="72" x2="170" y2="105" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-      <line x1="170" y1="105" x2="170" y2="165" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      <line x1="170" y1="165" x2="155" y2="230" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      <line x1="170" y1="165" x2="190" y2="230" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      {/* Arms — A bar low */}
-      <g className="rw-a">
-        <line x1="130" y1="92" x2="125" y2="180" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="125" y1="180" x2="135" y2="210" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <rect x="80" y="208" width="110" height="6" fill={accent} rx="3" />
-        <circle cx="80" cy="211" r="14" fill={accent} />
-        <circle cx="190" cy="211" r="14" fill={accent} />
+    <svg viewBox="0 0 260 260" className={animBase}>
+      <defs><filter id="rw-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="248" x2="245" y2="248" stroke={W} strokeWidth="2" opacity="0.2" />
+      <g className="anim-muscle">
+        <ellipse cx="160" cy="110" rx="28" ry="14" fill={accent} filter="url(#rw-blur)" />
       </g>
-      {/* Arms — B bar to belly */}
-      <g className="rw-b">
-        <line x1="130" y1="92" x2="125" y2="135" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="125" y1="135" x2="135" y2="115" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <rect x="80" y="113" width="110" height="6" fill={accent} rx="3" />
-        <circle cx="80" cy="116" r="14" fill={accent} />
-        <circle cx="190" cy="116" r="14" fill={accent} />
+      {/* Bent-over torso - shared */}
+      <circle cx="70" cy="70" r={L.r_head} fill={W} />
+      <line x1="80" y1="78" x2="185" y2="118" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+      {/* Hips to feet - shared */}
+      <line x1="185" y1="118" x2="190" y2="180" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      <line x1="190" y1="180" x2="175" y2="248" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      <line x1="190" y1="180" x2="210" y2="248" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      <circle cx="175" cy="250" r={L.r_foot} fill={W} />
+      <circle cx="210" cy="250" r={L.r_foot} fill={W} />
+      <line className="anim-arrow" x1="130" y1="190" x2="130" y2="120" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="127,122 133,122 130,116" fill={accent} opacity="0.6" />
+      <polygon points="127,188 133,188 130,194" fill={accent} opacity="0.6" />
+      {/* Frame A - bar hanging low */}
+      <g className="anim-fade-a">
+        <line x1="140" y1="100" x2="130" y2="185" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="130" y1="185" x2="135" y2="220" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <rect x="85" y="217" width="100" height="6" fill={accent} rx="3" />
+        <circle cx="85" cy="220" r="14" fill={accent} />
+        <circle cx="185" cy="220" r="14" fill={accent} />
       </g>
+      {/* Frame B - bar to belly */}
+      <g className="anim-fade-b">
+        <line x1="140" y1="100" x2="130" y2="140" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="130" y1="140" x2="135" y2="115" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <rect x="85" y="112" width="100" height="6" fill={accent} rx="3" />
+        <circle cx="85" cy="115" r="14" fill={accent} />
+        <circle cx="185" cy="115" r="14" fill={accent} />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. EXTENSIÓN" cue="Brazos abajo, escápulas sueltas" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. JALAR" cue="Barra al ombligo, aprieta omóplatos" /></g>
     </svg>
   );
 }
 
 function OHPAnim({ accent }) {
   return (
-    <svg viewBox="0 0 200 280" className={animBase}>
-      <style>{useFlipKeys('oh')}</style>
-      <line x1="15" y1="270" x2="185" y2="270" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Body standing */}
-      <circle cx="100" cy="80" r="13" fill={stroke} />
-      <line x1="100" y1="93" x2="100" y2="180" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-      <line x1="92" y1="180" x2="92" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      <line x1="108" y1="180" x2="108" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      {/* Arms — A: at shoulders */}
-      <g className="oh-a">
-        <line x1="100" y1="105" x2="65" y2="120" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="65" y1="120" x2="65" y2="90" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="105" x2="135" y2="120" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="135" y1="120" x2="135" y2="90" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="65" cy="80" r="11" fill={accent} />
-        <circle cx="135" cy="80" r="11" fill={accent} />
+    <svg viewBox="0 0 220 310" className={animBase}>
+      <defs><filter id="oh-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="295" x2="205" y2="295" stroke={W} strokeWidth="2" opacity="0.2" />
+      <line x1="110" y1="30" x2="110" y2="295" stroke={W} strokeWidth="1" opacity="0.08" strokeDasharray="2 3" />
+      <g className="anim-muscle">
+        <ellipse cx="85" cy="105" rx="10" ry="10" fill={accent} filter="url(#oh-blur)" />
+        <ellipse cx="135" cy="105" rx="10" ry="10" fill={accent} filter="url(#oh-blur)" />
       </g>
-      {/* Arms — B: overhead */}
-      <g className="oh-b">
-        <line x1="100" y1="105" x2="75" y2="60" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="75" y1="60" x2="75" y2="20" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="105" x2="125" y2="60" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="125" y1="60" x2="125" y2="20" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="75" cy="14" r="11" fill={accent} />
-        <circle cx="125" cy="14" r="11" fill={accent} />
+      <line className="anim-arrow" x1="82" y1="30" x2="82" y2="110" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="79,108 85,108 82,114" fill={accent} opacity="0.6" />
+      <polygon points="79,32 85,32 82,26" fill={accent} opacity="0.6" />
+      {/* Body - shared */}
+      <circle cx="110" cy="90" r={L.r_head} fill={W} />
+      <line x1="110" y1="101" x2="110" y2="195" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+      <line x1="105" y1="195" x2="102" y2="288" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      <line x1="115" y1="195" x2="118" y2="288" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      <circle cx="102" cy="290" r={L.r_foot} fill={W} />
+      <circle cx="118" cy="290" r={L.r_foot} fill={W} />
+      {/* Frame A - bar at shoulders */}
+      <g className="anim-fade-a">
+        <line x1="110" y1="115" x2="80" y2="110" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="80" y1="110" x2="80" y2="90" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="110" y1="115" x2="140" y2="110" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="140" y1="110" x2="140" y2="90" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <rect x="55" y="85" width="110" height="6" fill={accent} rx="3" />
+        <circle cx="55" cy="88" r="13" fill={accent} />
+        <circle cx="165" cy="88" r="13" fill={accent} />
       </g>
+      {/* Frame B - overhead lockout */}
+      <g className="anim-fade-b">
+        <line x1="110" y1="115" x2="88" y2="65" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="88" y1="65" x2="88" y2="35" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="110" y1="115" x2="132" y2="65" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="132" y1="65" x2="132" y2="35" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <rect x="55" y="30" width="110" height="6" fill={accent} rx="3" />
+        <circle cx="55" cy="33" r="13" fill={accent} />
+        <circle cx="165" cy="33" r="13" fill={accent} />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. RACK" cue="Codos delante, barra en clavícula" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. BLOQUEO" cue="Barra sobre cabeza (mete cabeza)" /></g>
     </svg>
   );
 }
 
 function PlankAnim({ accent }) {
   return (
-    <svg viewBox="0 0 280 160" className={animBase}>
-      <style>{`@keyframes pk-breath { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-3px) } } .pk { animation: pk-breath 2.4s ease-in-out infinite; transform-origin: center; }`}</style>
-      <line x1="15" y1="148" x2="265" y2="148" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      <g className="pk">
-        <circle cx="55" cy="70" r="13" fill={stroke} />
-        <line x1="68" y1="78" x2="225" y2="105" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        {/* Forearm */}
-        <line x1="68" y1="78" x2="55" y2="110" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="55" y1="110" x2="60" y2="148" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="42" y1="148" x2="78" y2="148" stroke={accent} strokeWidth={sw - 1} strokeLinecap="round" />
-        {/* Legs */}
-        <line x1="225" y1="105" x2="245" y2="148" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="225" y1="105" x2="250" y2="148" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+    <svg viewBox="0 0 300 180" className={animBase}>
+      <defs><filter id="pk-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="168" x2="285" y2="168" stroke={W} strokeWidth="2" opacity="0.2" />
+      {/* Reference line - straight body alignment */}
+      <line x1="55" y1="78" x2="255" y2="128" stroke={accent} strokeWidth="1" opacity="0.3" strokeDasharray="3 3" />
+      <g className="anim-muscle">
+        <ellipse cx="165" cy="118" rx="45" ry="10" fill={accent} filter="url(#pk-blur)" />
       </g>
+      <g className="anim-breathe">
+        <circle cx="58" cy="78" r={L.r_head} fill={W} />
+        <line x1="68" y1="86" x2="250" y2="128" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        {/* Forearm support */}
+        <line x1="68" y1="86" x2="55" y2="130" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="55" y1="130" x2="58" y2="165" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="38" y1="165" x2="85" y2="165" stroke={accent} strokeWidth="5" strokeLinecap="round" />
+        {/* Legs back */}
+        <line x1="250" y1="128" x2="272" y2="165" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="250" y1="128" x2="278" y2="165" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      </g>
+      {/* Single static label for isometric */}
+      <text x="12" y="22" fill={accent} fontFamily="'Bebas Neue', Impact, sans-serif" fontSize="13" letterSpacing="2">ISOMÉTRICO</text>
+      <text x="12" y="35" fill="#a8a29e" fontFamily="'Manrope', sans-serif" fontSize="8">Línea recta cabeza a talones</text>
+      <text x="12" y="47" fill="#a8a29e" fontFamily="'Manrope', sans-serif" fontSize="8">Aprieta core y glúteos</text>
     </svg>
   );
 }
 
 function PullupAnim({ accent }) {
   return (
-    <svg viewBox="0 0 200 280" className={animBase}>
-      <style>{useFlipKeys('pu')}</style>
-      {/* Bar at top */}
-      <rect x="20" y="20" width="160" height="8" fill={accent} rx="3" />
-      {/* Frame A — hanging */}
-      <g className="pu-a">
-        <line x1="80" y1="28" x2="80" y2="80" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="28" x2="120" y2="80" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="80" y1="80" x2="100" y2="120" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="80" x2="100" y2="120" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="100" cy="100" r="12" fill={stroke} />
-        <line x1="100" y1="120" x2="100" y2="200" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="100" y1="200" x2="92" y2="260" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="200" x2="108" y2="260" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+    <svg viewBox="0 0 220 310" className={animBase}>
+      <defs><filter id="pu-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <rect x="20" y="30" width="180" height="8" fill={accent} rx="3" />
+      <g className="anim-muscle">
+        <ellipse cx="88" cy="120" rx="10" ry="25" fill={accent} filter="url(#pu-blur)" />
+        <ellipse cx="132" cy="120" rx="10" ry="25" fill={accent} filter="url(#pu-blur)" />
       </g>
-      {/* Frame B — chin over bar */}
-      <g className="pu-b">
-        <line x1="80" y1="28" x2="80" y2="50" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="28" x2="120" y2="50" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="80" y1="50" x2="100" y2="55" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="50" x2="100" y2="55" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="100" cy="38" r="12" fill={stroke} />
-        <line x1="100" y1="55" x2="100" y2="155" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="100" y1="155" x2="85" y2="220" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="155" x2="115" y2="220" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+      <line className="anim-arrow" x1="160" y1="80" x2="160" y2="180" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="157,82 163,82 160,76" fill={accent} opacity="0.6" />
+      <polygon points="157,178 163,178 160,184" fill={accent} opacity="0.6" />
+      {/* Frame A - hanging */}
+      <g className="anim-fade-a">
+        <line x1="85" y1="38" x2="85" y2="85" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="135" y1="38" x2="135" y2="85" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="85" y1="85" x2="105" y2="125" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="135" y1="85" x2="115" y2="125" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="110" cy="110" r={L.r_head} fill={W} />
+        <line x1="110" y1="125" x2="110" y2="215" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="108" y1="215" x2="100" y2="275" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="112" y1="215" x2="120" y2="275" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="100" cy="275" r={L.r_foot} fill={W} />
+        <circle cx="120" cy="275" r={L.r_foot} fill={W} />
       </g>
+      {/* Frame B - chin over bar */}
+      <g className="anim-fade-b">
+        <line x1="85" y1="38" x2="80" y2="55" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="135" y1="38" x2="140" y2="55" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="80" y1="55" x2="100" y2="50" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="140" y1="55" x2="120" y2="50" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="110" cy="40" r={L.r_head} fill={W} />
+        <line x1="110" y1="50" x2="110" y2="150" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="107" y1="150" x2="92" y2="220" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="113" y1="150" x2="128" y2="220" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. COLGADO" cue="Escápulas activas, no encogido" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. JALAR" cue="Pecho a la barra (no barbilla)" /></g>
     </svg>
   );
 }
 
 function InclineAnim({ accent }) {
   return (
-    <svg viewBox="0 0 240 220" className={animBase}>
-      <style>{useFlipKeys('ip')}</style>
-      {/* Inclined bench */}
-      <line x1="40" y1="200" x2="200" y2="80" stroke={stroke} strokeWidth="14" opacity="0.15" strokeLinecap="round" />
-      <line x1="50" y1="200" x2="50" y2="215" stroke={stroke} strokeWidth="3" opacity="0.3" />
-      <line x1="195" y1="90" x2="195" y2="60" stroke={stroke} strokeWidth="3" opacity="0.3" />
-      {/* Body lying inclined */}
-      <circle cx="180" cy="80" r="12" fill={stroke} />
-      <line x1="170" y1="88" x2="80" y2="155" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-      <line x1="80" y1="155" x2="65" y2="200" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      {/* Arms — A: at chest */}
-      <g className="ip-a">
-        <line x1="135" y1="120" x2="120" y2="100" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="100" x2="100" y2="105" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="95" cy="100" r="9" fill={accent} />
-        <line x1="135" y1="120" x2="155" y2="105" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="155" y1="105" x2="155" y2="80" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="155" cy="78" r="9" fill={accent} />
+    <svg viewBox="0 0 300 240" className={animBase}>
+      <defs><filter id="ip-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="50" y1="220" x2="230" y2="85" stroke={W} strokeWidth="14" opacity="0.15" strokeLinecap="round" />
+      <line x1="60" y1="222" x2="60" y2="235" stroke={W} strokeWidth="3" opacity="0.3" />
+      <line x1="225" y1="92" x2="225" y2="60" stroke={W} strokeWidth="3" opacity="0.3" />
+      <line x1="15" y1="233" x2="285" y2="233" stroke={W} strokeWidth="2" opacity="0.2" />
+      <g className="anim-muscle">
+        <ellipse cx="155" cy="118" rx="28" ry="12" fill={accent} filter="url(#ip-blur)" transform="rotate(-35 155 118)" />
       </g>
-      {/* Arms — B: extended */}
-      <g className="ip-b">
-        <line x1="135" y1="120" x2="100" y2="60" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="60" x2="80" y2="40" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="78" cy="36" r="9" fill={accent} />
-        <line x1="135" y1="120" x2="155" y2="55" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="155" y1="55" x2="170" y2="30" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="172" cy="28" r="9" fill={accent} />
+      <line className="anim-arrow" x1="110" y1="140" x2="195" y2="55" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="193,58 198,52 201,57" fill={accent} opacity="0.6" />
+      <polygon points="109,137 114,143 107,143" fill={accent} opacity="0.6" />
+      {/* Body lying inclined - shared */}
+      <circle cx="205" cy="93" r={L.r_head} fill={W} />
+      <line x1="194" y1="100" x2="80" y2="185" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+      <line x1="80" y1="185" x2="65" y2="230" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      <circle cx="65" cy="232" r={L.r_foot} fill={W} />
+      {/* Frame A - at chest */}
+      <g className="anim-fade-a">
+        <line x1="150" y1="128" x2="135" y2="108" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="135" y1="108" x2="115" y2="108" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="110" cy="108" r="10" fill={accent} />
+        <line x1="170" y1="115" x2="170" y2="95" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="170" y1="95" x2="170" y2="75" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="170" cy="72" r="10" fill={accent} />
       </g>
+      {/* Frame B - extended */}
+      <g className="anim-fade-b">
+        <line x1="150" y1="128" x2="105" y2="75" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="105" y1="75" x2="85" y2="45" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="82" cy="42" r="10" fill={accent} />
+        <line x1="170" y1="115" x2="160" y2="60" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="160" y1="60" x2="165" y2="25" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="167" cy="22" r="10" fill={accent} />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. BAJADA" cue="Mancuernas a pecho superior" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. EMPUJE" cue="Arriba, aprieta pecho (no traba codos)" /></g>
     </svg>
   );
 }
 
 function LungeAnim({ accent }) {
   return (
-    <svg viewBox="0 0 240 280" className={animBase}>
-      <style>{useFlipKeys('ln')}</style>
-      <line x1="15" y1="270" x2="225" y2="270" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Frame A — standing/step start */}
-      <g className="ln-a">
-        <circle cx="100" cy="55" r="13" fill={stroke} />
-        <line x1="100" y1="68" x2="100" y2="155" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="100" y1="80" x2="78" y2="135" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="80" x2="122" y2="135" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="76" cy="140" r="9" fill={accent} />
-        <circle cx="124" cy="140" r="9" fill={accent} />
-        <line x1="92" y1="155" x2="92" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="108" y1="155" x2="108" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+    <svg viewBox="0 0 260 310" className={animBase}>
+      <defs><filter id="ln-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="295" x2="245" y2="295" stroke={W} strokeWidth="2" opacity="0.2" />
+      <g className="anim-muscle">
+        <ellipse cx="155" cy="245" rx="10" ry="20" fill={accent} filter="url(#ln-blur)" />
       </g>
-      {/* Frame B — lunge bottom */}
-      <g className="ln-b">
-        <circle cx="120" cy="100" r="13" fill={stroke} />
-        <line x1="120" y1="113" x2="125" y2="190" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="120" y1="125" x2="98" y2="180" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="125" x2="142" y2="180" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="96" cy="185" r="9" fill={accent} />
-        <circle cx="144" cy="185" r="9" fill={accent} />
-        {/* Front leg bent */}
-        <line x1="125" y1="190" x2="170" y2="220" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="170" y1="220" x2="180" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        {/* Back leg bent */}
-        <line x1="125" y1="190" x2="80" y2="220" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="80" y1="220" x2="60" y2="265" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+      <line className="anim-arrow" x1="205" y1="95" x2="205" y2="155" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="202,153 208,153 205,159" fill={accent} opacity="0.6" />
+      <polygon points="202,97 208,97 205,91" fill={accent} opacity="0.6" />
+      {/* Frame A - standing */}
+      <g className="anim-fade-a">
+        <circle cx="110" cy="60" r={L.r_head} fill={W} />
+        <line x1="110" y1="71" x2="110" y2="165" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="108" y1="85" x2="92" y2="145" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="112" y1="85" x2="128" y2="145" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="88" cy="148" r="7" fill={accent} />
+        <circle cx="132" cy="148" r="7" fill={accent} />
+        <line x1="105" y1="165" x2="102" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="115" y1="165" x2="118" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="102" cy="292" r={L.r_foot} fill={W} />
+        <circle cx="118" cy="292" r={L.r_foot} fill={W} />
       </g>
+      {/* Frame B - lunge position */}
+      <g className="anim-fade-b">
+        <circle cx="130" cy="100" r={L.r_head} fill={W} />
+        <line x1="131" y1="111" x2="135" y2="205" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="129" y1="125" x2="113" y2="185" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="133" y1="125" x2="149" y2="185" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="109" cy="188" r="7" fill={accent} />
+        <circle cx="153" cy="188" r="7" fill={accent} />
+        {/* Front leg (right) - knee forward */}
+        <line x1="140" y1="205" x2="180" y2="240" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="180" y1="240" x2="185" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        {/* Back leg (left) - knee near floor */}
+        <line x1="130" y1="205" x2="90" y2="240" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="90" y1="240" x2="75" y2="285" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="185" cy="292" r={L.r_foot} fill={W} />
+        <circle cx="75" cy="287" r={L.r_foot} fill={W} />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. PASO" cue="Paso largo, torso erguido" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. BAJADA" cue="Rodilla trasera casi al suelo" /></g>
     </svg>
   );
 }
 
 function CurlAnim({ accent }) {
   return (
-    <svg viewBox="0 0 200 280" className={animBase}>
-      <style>{useFlipKeys('cl')}</style>
-      <line x1="15" y1="270" x2="185" y2="270" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      <circle cx="100" cy="55" r="13" fill={stroke} />
-      <line x1="100" y1="68" x2="100" y2="170" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-      <line x1="92" y1="170" x2="92" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      <line x1="108" y1="170" x2="108" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      {/* Arms — A: extended down */}
-      <g className="cl-a">
-        <line x1="100" y1="80" x2="75" y2="135" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="75" y1="135" x2="75" y2="180" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="80" x2="125" y2="135" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="125" y1="135" x2="125" y2="180" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="75" cy="190" r="11" fill={accent} />
-        <circle cx="125" cy="190" r="11" fill={accent} />
+    <svg viewBox="0 0 220 310" className={animBase}>
+      <defs><filter id="cl-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="295" x2="205" y2="295" stroke={W} strokeWidth="2" opacity="0.2" />
+      <g className="anim-muscle">
+        <ellipse cx="80" cy="125" rx="8" ry="20" fill={accent} filter="url(#cl-blur)" />
+        <ellipse cx="140" cy="125" rx="8" ry="20" fill={accent} filter="url(#cl-blur)" />
       </g>
-      {/* Arms — B: curled up */}
-      <g className="cl-b">
-        <line x1="100" y1="80" x2="75" y2="135" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="75" y1="135" x2="80" y2="85" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="80" x2="125" y2="135" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="125" y1="135" x2="120" y2="85" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="80" cy="78" r="11" fill={accent} />
-        <circle cx="120" cy="78" r="11" fill={accent} />
+      <path className="anim-arrow" d="M 75 195 Q 50 130 70 100" stroke={accent} strokeWidth="1.5" fill="none" opacity="0.5" />
+      <polygon points="67,103 72,97 76,103" fill={accent} opacity="0.6" />
+      {/* Body - shared */}
+      <circle cx="110" cy="60" r={L.r_head} fill={W} />
+      <line x1="110" y1="71" x2="110" y2="180" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+      <line x1="104" y1="180" x2="100" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      <line x1="116" y1="180" x2="120" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      <circle cx="100" cy="292" r={L.r_foot} fill={W} />
+      <circle cx="120" cy="292" r={L.r_foot} fill={W} />
+      {/* Upper arms - pinned to sides (shared) */}
+      <line x1="108" y1="85" x2="80" y2="145" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+      <line x1="112" y1="85" x2="140" y2="145" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+      {/* Frame A - extended down */}
+      <g className="anim-fade-a">
+        <line x1="80" y1="145" x2="80" y2="200" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="140" y1="145" x2="140" y2="200" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="80" cy="210" r="10" fill={accent} />
+        <circle cx="140" cy="210" r="10" fill={accent} />
       </g>
+      {/* Frame B - curled up */}
+      <g className="anim-fade-b">
+        <line x1="80" y1="145" x2="88" y2="100" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="140" y1="145" x2="132" y2="100" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="88" cy="92" r="10" fill={accent} />
+        <circle cx="132" cy="92" r="10" fill={accent} />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. EXTENSIÓN" cue="Codos pegados al torso" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. CURL" cue="Solo antebrazo sube (sin balanceo)" /></g>
     </svg>
   );
 }
 
 function BulgarianAnim({ accent }) {
   return (
-    <svg viewBox="0 0 240 280" className={animBase}>
-      <style>{useFlipKeys('bg')}</style>
-      <line x1="15" y1="270" x2="225" y2="270" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Bench in back */}
-      <rect x="170" y="190" width="60" height="10" fill={stroke} opacity="0.2" rx="2" />
-      <line x1="180" y1="200" x2="180" y2="265" stroke={stroke} strokeWidth="3" opacity="0.3" />
-      <line x1="220" y1="200" x2="220" y2="265" stroke={stroke} strokeWidth="3" opacity="0.3" />
-      {/* Frame A — top */}
-      <g className="bg-a">
-        <circle cx="120" cy="55" r="13" fill={stroke} />
-        <line x1="120" y1="68" x2="120" y2="160" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="120" y1="80" x2="98" y2="135" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="80" x2="142" y2="135" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="160" x2="115" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="160" x2="180" y2="190" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+    <svg viewBox="0 0 260 310" className={animBase}>
+      <defs><filter id="bg-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="295" x2="245" y2="295" stroke={W} strokeWidth="2" opacity="0.2" />
+      {/* Bench */}
+      <rect x="180" y="205" width="70" height="10" fill={W} opacity="0.2" rx="2" />
+      <line x1="192" y1="215" x2="192" y2="288" stroke={W} strokeWidth="3" opacity="0.3" />
+      <line x1="240" y1="215" x2="240" y2="288" stroke={W} strokeWidth="3" opacity="0.3" />
+      <g className="anim-muscle">
+        <ellipse cx="110" cy="240" rx="10" ry="20" fill={accent} filter="url(#bg-blur)" />
       </g>
-      {/* Frame B — bottom */}
-      <g className="bg-b">
-        <circle cx="120" cy="115" r="13" fill={stroke} />
-        <line x1="120" y1="128" x2="125" y2="200" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="120" y1="140" x2="98" y2="180" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="140" x2="142" y2="180" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="125" y1="200" x2="100" y2="240" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="240" x2="115" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="125" y1="200" x2="180" y2="195" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+      <line className="anim-arrow" x1="75" y1="100" x2="75" y2="170" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="72,168 78,168 75,174" fill={accent} opacity="0.6" />
+      <polygon points="72,102 78,102 75,96" fill={accent} opacity="0.6" />
+      {/* Frame A - top */}
+      <g className="anim-fade-a">
+        <circle cx="115" cy="60" r={L.r_head} fill={W} />
+        <line x1="115" y1="71" x2="115" y2="170" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="113" y1="85" x2="95" y2="145" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="117" y1="85" x2="135" y2="145" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        {/* Front leg down */}
+        <line x1="115" y1="170" x2="108" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="108" cy="292" r={L.r_foot} fill={W} />
+        {/* Back leg up on bench */}
+        <line x1="115" y1="170" x2="180" y2="200" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="180" y1="200" x2="215" y2="210" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
       </g>
+      {/* Frame B - bottom */}
+      <g className="anim-fade-b">
+        <circle cx="115" cy="120" r={L.r_head} fill={W} />
+        <line x1="118" y1="131" x2="120" y2="210" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="116" y1="145" x2="98" y2="200" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="120" y1="145" x2="138" y2="200" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        {/* Front leg bent deep */}
+        <line x1="120" y1="210" x2="90" y2="245" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="90" y1="245" x2="108" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="108" cy="292" r={L.r_foot} fill={W} />
+        {/* Back leg on bench */}
+        <line x1="120" y1="210" x2="180" y2="210" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="180" y1="210" x2="215" y2="210" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. SETUP" cue="Pie atrás en banca, paso largo" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. BAJADA" cue="Baja vertical, empuja con talón" /></g>
     </svg>
   );
 }
 
 function HipthrustAnim({ accent }) {
   return (
-    <svg viewBox="0 0 280 200" className={animBase}>
-      <style>{useFlipKeys('ht')}</style>
-      <line x1="15" y1="190" x2="265" y2="190" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Bench */}
-      <rect x="20" y="80" width="80" height="14" fill={stroke} opacity="0.15" rx="3" />
-      <line x1="30" y1="94" x2="30" y2="190" stroke={stroke} strokeWidth="4" opacity="0.3" />
-      <line x1="90" y1="94" x2="90" y2="190" stroke={stroke} strokeWidth="4" opacity="0.3" />
-      {/* Head & shoulders fixed on bench */}
-      <circle cx="55" cy="70" r="12" fill={stroke} />
-      <line x1="65" y1="78" x2="115" y2="80" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-      {/* Frame A — hips down */}
-      <g className="ht-a">
-        <line x1="115" y1="80" x2="135" y2="160" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="135" y1="160" x2="190" y2="170" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="190" y1="170" x2="200" y2="190" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <rect x="125" y="155" width="20" height="6" fill={accent} rx="2" />
-        <circle cx="135" cy="158" r="14" fill={accent} opacity="0.8" />
+    <svg viewBox="0 0 300 220" className={animBase}>
+      <defs><filter id="ht-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="205" x2="285" y2="205" stroke={W} strokeWidth="2" opacity="0.2" />
+      <rect x="30" y="95" width="90" height="12" fill={W} opacity="0.15" rx="3" />
+      <line x1="45" y1="107" x2="45" y2="200" stroke={W} strokeWidth="3" opacity="0.3" />
+      <line x1="105" y1="107" x2="105" y2="200" stroke={W} strokeWidth="3" opacity="0.3" />
+      <g className="anim-muscle">
+        <ellipse cx="170" cy="115" rx="18" ry="15" fill={accent} filter="url(#ht-blur)" />
       </g>
-      {/* Frame B — hips up */}
-      <g className="ht-b">
-        <line x1="115" y1="80" x2="195" y2="100" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="195" y1="100" x2="220" y2="160" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="220" y1="160" x2="220" y2="190" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <rect x="180" y="92" width="30" height="6" fill={accent} rx="2" />
-        <circle cx="195" cy="95" r="14" fill={accent} opacity="0.8" />
+      <line className="anim-arrow" x1="175" y1="175" x2="175" y2="115" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="172,117 178,117 175,111" fill={accent} opacity="0.6" />
+      <polygon points="172,173 178,173 175,179" fill={accent} opacity="0.6" />
+      {/* Upper body anchored on bench - shared */}
+      <circle cx="60" cy="85" r={L.r_head} fill={W} />
+      <line x1="71" y1="92" x2="130" y2="95" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+      {/* Frame A - hips down */}
+      <g className="anim-fade-a">
+        <line x1="130" y1="95" x2="155" y2="175" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="155" y1="175" x2="210" y2="180" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="210" y1="180" x2="225" y2="202" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="225" cy="202" r={L.r_foot} fill={W} />
+        <rect x="145" y="168" width="24" height="6" fill={accent} rx="2" />
+        <circle cx="155" cy="171" r="13" fill={accent} opacity="0.9" />
       </g>
+      {/* Frame B - hip lockout */}
+      <g className="anim-fade-b">
+        <line x1="130" y1="95" x2="215" y2="110" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="215" y1="110" x2="235" y2="170" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="235" y1="170" x2="235" y2="202" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="235" cy="202" r={L.r_foot} fill={W} />
+        <rect x="202" y="100" width="30" height="6" fill={accent} rx="2" />
+        <circle cx="218" cy="103" r="13" fill={accent} opacity="0.9" />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. ABAJO" cue="Espalda alta en banca, pies cerca" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. LOCKOUT" cue="Cadera arriba, aprieta glúteos" /></g>
     </svg>
   );
 }
 
 function CableRowAnim({ accent }) {
   return (
-    <svg viewBox="0 0 280 200" className={animBase}>
-      <style>{useFlipKeys('cr')}</style>
-      <line x1="15" y1="190" x2="265" y2="190" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Cable machine pulley */}
-      <rect x="240" y="100" width="20" height="90" fill={stroke} opacity="0.2" />
-      <circle cx="250" cy="105" r="6" fill={stroke} opacity="0.4" />
-      {/* Body seated */}
-      <circle cx="80" cy="60" r="12" fill={stroke} />
-      <line x1="80" y1="72" x2="80" y2="140" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-      <line x1="80" y1="140" x2="160" y2="155" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      <line x1="160" y1="155" x2="160" y2="190" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      <line x1="200" y1="155" x2="200" y2="190" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-      {/* Arms with cable */}
-      <g className="cr-a">
-        <line x1="80" y1="85" x2="160" y2="105" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="160" y1="105" x2="220" y2="115" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="220" y1="115" x2="250" y2="105" stroke={accent} strokeWidth="2" strokeDasharray="3,3" />
-        <rect x="215" y="110" width="14" height="10" fill={accent} rx="2" />
+    <svg viewBox="0 0 300 220" className={animBase}>
+      <defs><filter id="cr-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="208" x2="285" y2="208" stroke={W} strokeWidth="2" opacity="0.2" />
+      <rect x="255" y="100" width="22" height="108" fill={W} opacity="0.18" />
+      <circle cx="266" cy="108" r="7" fill={W} opacity="0.4" />
+      <g className="anim-muscle">
+        <ellipse cx="95" cy="110" rx="22" ry="12" fill={accent} filter="url(#cr-blur)" />
       </g>
-      <g className="cr-b">
-        <line x1="80" y1="85" x2="115" y2="120" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="115" y1="120" x2="100" y2="105" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="105" x2="250" y2="105" stroke={accent} strokeWidth="2" strokeDasharray="3,3" />
-        <rect x="92" y="100" width="14" height="10" fill={accent} rx="2" />
+      <line className="anim-arrow" x1="140" y1="140" x2="220" y2="118" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="218,115 225,118 218,122" fill={accent} opacity="0.6" />
+      {/* Seated body - shared */}
+      <circle cx="85" cy="75" r={L.r_head} fill={W} />
+      <line x1="85" y1="86" x2="88" y2="155" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+      <line x1="88" y1="155" x2="175" y2="170" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      <line x1="175" y1="170" x2="175" y2="205" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      <line x1="210" y1="170" x2="210" y2="205" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      {/* Frame A - arms extended, handle at cable */}
+      <g className="anim-fade-a">
+        <line x1="85" y1="100" x2="160" y2="118" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="160" y1="118" x2="230" y2="115" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="230" y1="115" x2="266" y2="108" stroke={accent} strokeWidth="1.5" strokeDasharray="3 2" opacity="0.6" />
+        <rect x="225" y="110" width="14" height="10" fill={accent} rx="2" />
       </g>
+      {/* Frame B - handle pulled to torso */}
+      <g className="anim-fade-b">
+        <line x1="85" y1="100" x2="120" y2="130" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="120" y1="130" x2="105" y2="110" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="105" y1="110" x2="266" y2="108" stroke={accent} strokeWidth="1.5" strokeDasharray="3 2" opacity="0.6" />
+        <rect x="95" y="105" width="14" height="10" fill={accent} rx="2" />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. EXTENSIÓN" cue="Brazos estirados, pecho arriba" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. JALAR" cue="Codos al torso, aprieta escápulas" /></g>
     </svg>
   );
 }
 
 function AbWheelAnim({ accent }) {
   return (
-    <svg viewBox="0 0 280 180" className={animBase}>
-      <style>{useFlipKeys('aw')}</style>
-      <line x1="15" y1="170" x2="265" y2="170" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Frame A — kneeling start */}
-      <g className="aw-a">
-        <circle cx="100" cy="60" r="12" fill={stroke} />
-        <line x1="100" y1="72" x2="100" y2="120" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="100" y1="120" x2="115" y2="150" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="115" y1="150" x2="160" y2="160" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="85" x2="135" y2="155" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="140" cy="155" r="14" fill="none" stroke={accent} strokeWidth="4" />
-        <line x1="124" y1="155" x2="156" y2="155" stroke={accent} strokeWidth="3" />
+    <svg viewBox="0 0 300 200" className={animBase}>
+      <defs><filter id="aw-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="188" x2="285" y2="188" stroke={W} strokeWidth="2" opacity="0.2" />
+      <g className="anim-muscle">
+        <ellipse cx="130" cy="140" rx="30" ry="12" fill={accent} filter="url(#aw-blur)" />
       </g>
-      {/* Frame B — extended */}
-      <g className="aw-b">
-        <circle cx="80" cy="100" r="12" fill={stroke} />
-        <line x1="92" y1="105" x2="160" y2="135" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="160" y1="135" x2="120" y2="155" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="155" x2="80" y2="160" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="80" y1="105" x2="220" y2="155" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="225" cy="155" r="14" fill="none" stroke={accent} strokeWidth="4" />
-        <line x1="209" y1="155" x2="241" y2="155" stroke={accent} strokeWidth="3" />
+      <line className="anim-arrow" x1="155" y1="168" x2="240" y2="168" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="238,165 245,168 238,171" fill={accent} opacity="0.6" />
+      {/* Frame A - kneeling start */}
+      <g className="anim-fade-a">
+        <circle cx="110" cy="70" r={L.r_head} fill={W} />
+        <line x1="110" y1="81" x2="108" y2="145" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="108" y1="145" x2="125" y2="175" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="125" y1="175" x2="165" y2="180" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="110" y1="93" x2="135" y2="170" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="145" cy="175" r="15" fill="none" stroke={accent} strokeWidth="4" />
+        <line x1="135" y1="175" x2="155" y2="175" stroke={accent} strokeWidth="4" strokeLinecap="round" />
       </g>
+      {/* Frame B - extended out */}
+      <g className="anim-fade-b">
+        <circle cx="85" cy="110" r={L.r_head} fill={W} />
+        <line x1="96" y1="115" x2="150" y2="155" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="150" y1="155" x2="130" y2="180" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="130" y1="180" x2="95" y2="183" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="85" y1="115" x2="235" y2="170" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="245" cy="172" r="15" fill="none" stroke={accent} strokeWidth="4" />
+        <line x1="235" y1="172" x2="255" y2="172" stroke={accent} strokeWidth="4" strokeLinecap="round" />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. INICIO" cue="De rodillas, core apretado" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. EXTENSIÓN" cue="Rueda lejos, no arquees lumbar" /></g>
     </svg>
   );
 }
 
 function KBSwingAnim({ accent }) {
   return (
-    <svg viewBox="0 0 200 280" className={animBase}>
-      <style>{useFlipKeys('kb')}</style>
-      <line x1="15" y1="270" x2="185" y2="270" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Frame A — hip hinge with KB between legs */}
-      <g className="kb-a">
-        <circle cx="80" cy="90" r="12" fill={stroke} />
-        <line x1="92" y1="98" x2="135" y2="155" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="135" y1="155" x2="125" y2="200" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="125" y1="200" x2="115" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="135" y1="155" x2="155" y2="200" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="155" y1="200" x2="155" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="115" x2="120" y2="220" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="120" cy="230" r="13" fill={accent} />
-        <line x1="118" y1="220" x2="122" y2="220" stroke={accent} strokeWidth="4" />
+    <svg viewBox="0 0 240 310" className={animBase}>
+      <defs><filter id="kb-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="295" x2="225" y2="295" stroke={W} strokeWidth="2" opacity="0.2" />
+      <g className="anim-muscle">
+        <ellipse cx="120" cy="195" rx="20" ry="15" fill={accent} filter="url(#kb-blur)" />
       </g>
-      {/* Frame B — KB at chest level */}
-      <g className="kb-b">
-        <circle cx="100" cy="55" r="13" fill={stroke} />
-        <line x1="100" y1="68" x2="100" y2="170" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="92" y1="170" x2="92" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="108" y1="170" x2="108" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="80" x2="100" y2="100" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="100" x2="100" y2="135" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="100" cy="145" r="13" fill={accent} />
+      <path className="anim-arrow" d="M 85 230 Q 40 180 90 120" stroke={accent} strokeWidth="1.5" fill="none" opacity="0.5" />
+      <polygon points="87,122 92,117 97,123" fill={accent} opacity="0.6" />
+      {/* Frame A - hip hinge (backswing) */}
+      <g className="anim-fade-a-fast">
+        <circle cx="95" cy="100" r={L.r_head} fill={W} />
+        <line x1="106" y1="108" x2="155" y2="175" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="155" y1="175" x2="140" y2="220" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="140" y1="220" x2="125" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="155" y1="175" x2="180" y2="220" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="180" y1="220" x2="190" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="125" cy="292" r={L.r_foot} fill={W} />
+        <circle cx="190" cy="292" r={L.r_foot} fill={W} />
+        <line x1="115" y1="125" x2="110" y2="225" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="110" cy="240" r="15" fill={accent} />
       </g>
+      {/* Frame B - chest height */}
+      <g className="anim-fade-b-fast">
+        <circle cx="115" cy="55" r={L.r_head} fill={W} />
+        <line x1="115" y1="66" x2="115" y2="180" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="110" y1="180" x2="105" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="120" y1="180" x2="135" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="105" cy="292" r={L.r_foot} fill={W} />
+        <circle cx="135" cy="292" r={L.r_foot} fill={W} />
+        <line x1="115" y1="80" x2="115" y2="135" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <circle cx="115" cy="150" r="15" fill={accent} />
+      </g>
+      <g className="anim-fade-a-fast"><Label accent={accent} phase="1. HINGE" cue="Cadera atrás (no sentadilla)" /></g>
+      <g className="anim-fade-b-fast"><Label accent={accent} phase="2. EXPLOSIÓN" cue="Glúteo empuja, KB al pecho" /></g>
     </svg>
   );
 }
 
 function BurpeeAnim({ accent }) {
   return (
-    <svg viewBox="0 0 240 240" className={animBase}>
-      <style>{useFlipKeys('bu')}</style>
-      <line x1="15" y1="230" x2="225" y2="230" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Frame A — plank */}
-      <g className="bu-a">
-        <circle cx="55" cy="170" r="11" fill={stroke} />
-        <line x1="65" y1="175" x2="195" y2="195" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="65" y1="175" x2="60" y2="225" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="195" y1="195" x2="210" y2="230" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="195" y1="195" x2="220" y2="230" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+    <svg viewBox="0 0 260 260" className={animBase}>
+      <defs><filter id="bu-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="248" x2="245" y2="248" stroke={W} strokeWidth="2" opacity="0.2" />
+      <line className="anim-arrow" x1="200" y1="225" x2="200" y2="80" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="197,82 203,82 200,75" fill={accent} opacity="0.6" />
+      {/* Frame A - plank bottom */}
+      <g className="anim-fade-a-fast">
+        <circle cx="65" cy="185" r={L.r_head} fill={W} />
+        <line x1="75" y1="190" x2="200" y2="210" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="75" y1="190" x2="70" y2="245" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="90" y1="195" x2="85" y2="245" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="200" y1="210" x2="215" y2="245" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="200" y1="210" x2="225" y2="245" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
       </g>
-      {/* Frame B — jump up */}
-      <g className="bu-b">
-        <circle cx="120" cy="40" r="13" fill={stroke} />
-        <line x1="120" y1="53" x2="120" y2="140" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="120" y1="65" x2="85" y2="20" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="65" x2="155" y2="20" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="140" x2="105" y2="195" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="140" x2="135" y2="195" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="105" y1="195" x2="100" y2="220" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="135" y1="195" x2="140" y2="220" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        {/* Motion lines */}
-        <line x1="60" y1="200" x2="60" y2="220" stroke={accent} strokeWidth="3" opacity="0.6" />
-        <line x1="180" y1="200" x2="180" y2="220" stroke={accent} strokeWidth="3" opacity="0.6" />
+      {/* Frame B - jump/reach up */}
+      <g className="anim-fade-b-fast">
+        <circle cx="130" cy="50" r={L.r_head} fill={W} />
+        <line x1="130" y1="61" x2="130" y2="155" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="128" y1="75" x2="90" y2="25" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="132" y1="75" x2="170" y2="25" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="125" y1="155" x2="110" y2="220" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="135" y1="155" x2="150" y2="220" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="60" y1="230" x2="60" y2="248" stroke={accent} strokeWidth="2" opacity="0.5" />
+        <line x1="200" y1="230" x2="200" y2="248" stroke={accent} strokeWidth="2" opacity="0.5" />
+        <line x1="30" y1="235" x2="30" y2="248" stroke={accent} strokeWidth="2" opacity="0.4" />
+        <line x1="230" y1="235" x2="230" y2="248" stroke={accent} strokeWidth="2" opacity="0.4" />
       </g>
+      <g className="anim-fade-a-fast"><Label accent={accent} phase="1. PLANCHA" cue="Pecho al suelo, cuerpo recto" /></g>
+      <g className="anim-fade-b-fast"><Label accent={accent} phase="2. SALTO" cue="Explota, manos al cielo" /></g>
     </svg>
   );
 }
 
 function PushupAnim({ accent }) {
   return (
-    <svg viewBox="0 0 280 160" className={animBase}>
-      <style>{useFlipKeys('ph')}</style>
-      <line x1="15" y1="148" x2="265" y2="148" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Frame A — top (extended) */}
-      <g className="ph-a">
-        <circle cx="55" cy="50" r="12" fill={stroke} />
-        <line x1="65" y1="58" x2="220" y2="100" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="65" y1="58" x2="60" y2="148" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="220" y1="100" x2="240" y2="148" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="220" y1="100" x2="245" y2="148" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+    <svg viewBox="0 0 300 180" className={animBase}>
+      <defs><filter id="ph-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="168" x2="285" y2="168" stroke={W} strokeWidth="2" opacity="0.2" />
+      <line x1="55" y1="60" x2="260" y2="100" stroke={accent} strokeWidth="1" opacity="0.25" strokeDasharray="3 3" />
+      <g className="anim-muscle">
+        <ellipse cx="160" cy="90" rx="40" ry="10" fill={accent} filter="url(#ph-blur)" />
       </g>
-      {/* Frame B — bottom (chest near floor) */}
-      <g className="ph-b">
-        <circle cx="55" cy="100" r="12" fill={stroke} />
-        <line x1="65" y1="105" x2="220" y2="125" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="65" y1="105" x2="65" y2="148" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="220" y1="125" x2="240" y2="148" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="220" y1="125" x2="245" y2="148" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+      <line className="anim-arrow" x1="240" y1="145" x2="240" y2="90" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="237,92 243,92 240,86" fill={accent} opacity="0.6" />
+      <polygon points="237,143 243,143 240,149" fill={accent} opacity="0.6" />
+      {/* Frame A - top/extended */}
+      <g className="anim-fade-a">
+        <circle cx="58" cy="55" r={L.r_head} fill={W} />
+        <line x1="68" y1="62" x2="240" y2="100" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="68" y1="62" x2="60" y2="165" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="240" y1="100" x2="265" y2="165" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="240" y1="100" x2="270" y2="165" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
       </g>
+      {/* Frame B - bottom/chest near floor */}
+      <g className="anim-fade-b">
+        <circle cx="58" cy="115" r={L.r_head} fill={W} />
+        <line x1="68" y1="118" x2="240" y2="140" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="68" y1="118" x2="70" y2="165" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="80" y1="125" x2="80" y2="165" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="240" y1="140" x2="260" y2="165" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="240" y1="140" x2="265" y2="165" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. ARRIBA" cue="Cuerpo recto, brazos extendidos" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. ABAJO" cue="Pecho al piso, codos a 45°" /></g>
     </svg>
   );
 }
 
 function WallballAnim({ accent }) {
   return (
-    <svg viewBox="0 0 200 280" className={animBase}>
-      <style>{useFlipKeys('wb')}</style>
-      <line x1="15" y1="270" x2="185" y2="270" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Wall (right side) */}
-      <line x1="180" y1="10" x2="180" y2="270" stroke={stroke} strokeWidth="3" opacity="0.2" />
-      {/* Frame A — squat with ball at chest */}
-      <g className="wb-a">
-        <circle cx="80" cy="115" r="12" fill={stroke} />
-        <line x1="80" y1="127" x2="85" y2="195" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="80" y1="140" x2="100" y2="160" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="160" x2="115" y2="140" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="85" y1="195" x2="65" y2="225" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="65" y1="225" x2="75" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="85" y1="195" x2="105" y2="225" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="105" y1="225" x2="115" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="125" cy="135" r="16" fill={accent} />
+    <svg viewBox="0 0 220 310" className={animBase}>
+      <defs><filter id="wb-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="295" x2="205" y2="295" stroke={W} strokeWidth="2" opacity="0.2" />
+      <line x1="195" y1="15" x2="195" y2="295" stroke={W} strokeWidth="3" opacity="0.2" />
+      <path className="anim-arrow" d="M 135 140 Q 175 70 190 30" stroke={accent} strokeWidth="1.5" fill="none" opacity="0.5" />
+      <polygon points="188,32 193,27 197,32" fill={accent} opacity="0.6" />
+      <g className="anim-muscle">
+        <ellipse cx="90" cy="200" rx="10" ry="18" fill={accent} filter="url(#wb-blur)" />
       </g>
-      {/* Frame B — standing throw */}
-      <g className="wb-b">
-        <circle cx="80" cy="55" r="12" fill={stroke} />
-        <line x1="80" y1="67" x2="80" y2="170" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="80" y1="80" x2="120" y2="40" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="40" x2="150" y2="20" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="72" y1="170" x2="72" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="88" y1="170" x2="88" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <circle cx="160" cy="20" r="16" fill={accent} />
+      {/* Frame A - bottom of squat with ball at chest */}
+      <g className="anim-fade-a-fast">
+        <circle cx="85" cy="115" r={L.r_head} fill={W} />
+        <line x1="88" y1="126" x2="92" y2="200" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="86" y1="138" x2="110" y2="165" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="110" y1="165" x2="120" y2="140" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="92" y1="200" x2="70" y2="230" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="70" y1="230" x2="80" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="92" y1="200" x2="115" y2="230" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="115" y1="230" x2="120" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="80" cy="292" r={L.r_foot} fill={W} />
+        <circle cx="120" cy="292" r={L.r_foot} fill={W} />
+        <circle cx="130" cy="135" r="16" fill={accent} />
       </g>
+      {/* Frame B - standing throw extended */}
+      <g className="anim-fade-b-fast">
+        <circle cx="85" cy="60" r={L.r_head} fill={W} />
+        <line x1="85" y1="71" x2="85" y2="170" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="85" y1="82" x2="130" y2="40" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="130" y1="40" x2="170" y2="20" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="80" y1="170" x2="78" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="90" y1="170" x2="92" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="78" cy="292" r={L.r_foot} fill={W} />
+        <circle cx="92" cy="292" r={L.r_foot} fill={W} />
+        <circle cx="180" cy="18" r="14" fill={accent} />
+      </g>
+      <g className="anim-fade-a-fast"><Label accent={accent} phase="1. SENTADILLA" cue="Pelota al pecho, profundidad" /></g>
+      <g className="anim-fade-b-fast"><Label accent={accent} phase="2. LANZA" cue="Explota y apunta al blanco" /></g>
     </svg>
   );
 }
 
 function RowerAnim({ accent }) {
   return (
-    <svg viewBox="0 0 280 160" className={animBase}>
-      <style>{useFlipKeys('rm')}</style>
-      <line x1="15" y1="148" x2="265" y2="148" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Rower rail */}
-      <rect x="40" y="120" width="200" height="6" fill={stroke} opacity="0.2" rx="2" />
-      <rect x="20" y="105" width="40" height="35" fill={accent} opacity="0.8" rx="3" />
-      <line x1="60" y1="115" x2="220" y2="115" stroke={accent} strokeWidth="2" strokeDasharray="4,3" />
-      {/* Frame A — catch (knees bent) */}
-      <g className="rm-a">
-        <circle cx="190" cy="65" r="12" fill={stroke} />
-        <line x1="190" y1="77" x2="190" y2="115" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="190" y1="90" x2="160" y2="105" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="160" y1="105" x2="120" y2="115" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="190" y1="115" x2="160" y2="105" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="160" y1="105" x2="195" y2="120" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <rect x="115" y="113" width="14" height="6" fill={accent} rx="2" />
+    <svg viewBox="0 0 320 180" className={animBase}>
+      <defs><filter id="rm-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="168" x2="305" y2="168" stroke={W} strokeWidth="2" opacity="0.2" />
+      <rect x="50" y="135" width="230" height="7" fill={W} opacity="0.2" rx="2" />
+      <rect x="20" y="115" width="45" height="40" fill={accent} opacity="0.6" rx="4" />
+      <line className="anim-arrow" x1="100" y1="125" x2="240" y2="125" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="238,122 244,125 238,128" fill={accent} opacity="0.6" />
+      <polygon points="102,122 96,125 102,128" fill={accent} opacity="0.6" />
+      {/* Frame A - catch (compressed) */}
+      <g className="anim-fade-a-fast">
+        <circle cx="220" cy="70" r={L.r_head} fill={W} />
+        <line x1="220" y1="81" x2="220" y2="130" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="220" y1="95" x2="180" y2="115" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="180" y1="115" x2="135" y2="125" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="220" y1="130" x2="170" y2="115" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="170" y1="115" x2="215" y2="138" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <rect x="128" y="121" width="14" height="8" fill={accent} rx="2" />
       </g>
-      {/* Frame B — finish (legs extended, handle pulled) */}
-      <g className="rm-b">
-        <circle cx="220" cy="55" r="12" fill={stroke} />
-        <line x1="220" y1="67" x2="215" y2="125" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="215" y1="85" x2="180" y2="100" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="180" y1="100" x2="195" y2="115" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="215" y1="125" x2="170" y2="125" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="170" y1="125" x2="120" y2="125" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <rect x="190" y="113" width="14" height="6" fill={accent} rx="2" />
+      {/* Frame B - finish (extended back) */}
+      <g className="anim-fade-b-fast">
+        <circle cx="260" cy="60" r={L.r_head} fill={W} />
+        <line x1="258" y1="71" x2="250" y2="140" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="253" y1="90" x2="215" y2="108" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="215" y1="108" x2="230" y2="125" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="250" y1="140" x2="180" y2="140" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="180" y1="140" x2="115" y2="140" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <rect x="222" y="120" width="14" height="8" fill={accent} rx="2" />
       </g>
+      <g className="anim-fade-a-fast"><Label accent={accent} phase="1. AGARRE" cue="Rodillas flexionadas, brazos largos" /></g>
+      <g className="anim-fade-b-fast"><Label accent={accent} phase="2. FINAL" cue="Piernas → cadera → brazos" /></g>
     </svg>
   );
 }
 
 function ThrusterAnim({ accent }) {
   return (
-    <svg viewBox="0 0 200 280" className={animBase}>
-      <style>{useFlipKeys('th')}</style>
-      <line x1="15" y1="270" x2="185" y2="270" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Frame A — front squat bottom */}
-      <g className="th-a">
-        <rect x="55" y="115" width="90" height="6" fill={accent} rx="3" />
-        <circle cx="55" cy="118" r="14" fill={accent} />
-        <circle cx="145" cy="118" r="14" fill={accent} />
-        <circle cx="100" cy="100" r="13" fill={stroke} />
-        <line x1="100" y1="113" x2="105" y2="190" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="100" y1="125" x2="80" y2="118" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="125" x2="120" y2="118" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="105" y1="190" x2="70" y2="225" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="70" y1="225" x2="92" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="105" y1="190" x2="140" y2="225" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="140" y1="225" x2="108" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+    <svg viewBox="0 0 220 310" className={animBase}>
+      <defs><filter id="th-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="295" x2="205" y2="295" stroke={W} strokeWidth="2" opacity="0.2" />
+      <line className="anim-arrow" x1="185" y1="30" x2="185" y2="160" stroke={accent} strokeWidth="1.5" opacity="0.5" />
+      <polygon points="182,32 188,32 185,26" fill={accent} opacity="0.6" />
+      <polygon points="182,158 188,158 185,164" fill={accent} opacity="0.6" />
+      <g className="anim-muscle">
+        <ellipse cx="100" cy="210" rx="8" ry="18" fill={accent} filter="url(#th-blur)" />
+        <ellipse cx="120" cy="210" rx="8" ry="18" fill={accent} filter="url(#th-blur)" />
       </g>
-      {/* Frame B — overhead lockout */}
-      <g className="th-b">
-        <rect x="55" y="20" width="90" height="6" fill={accent} rx="3" />
-        <circle cx="55" cy="23" r="14" fill={accent} />
-        <circle cx="145" cy="23" r="14" fill={accent} />
-        <circle cx="100" cy="60" r="13" fill={stroke} />
-        <line x1="100" y1="73" x2="100" y2="160" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="100" y1="85" x2="80" y2="40" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="80" y1="40" x2="80" y2="22" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="100" y1="85" x2="120" y2="40" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="120" y1="40" x2="120" y2="22" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="92" y1="160" x2="92" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="108" y1="160" x2="108" y2="270" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+      {/* Frame A - front squat bottom */}
+      <g className="anim-fade-a-fast">
+        <rect x="50" y="118" width="120" height="6" fill={accent} rx="3" />
+        <circle cx="50" cy="121" r="14" fill={accent} />
+        <circle cx="170" cy="121" r="14" fill={accent} />
+        <circle cx="110" cy="105" r={L.r_head} fill={W} />
+        <line x1="110" y1="116" x2="110" y2="210" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="108" y1="128" x2="85" y2="120" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="85" y1="120" x2="80" y2="108" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="112" y1="128" x2="135" y2="120" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="135" y1="120" x2="140" y2="108" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="107" y1="210" x2="82" y2="235" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="82" y1="235" x2="102" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="113" y1="210" x2="138" y2="235" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="138" y1="235" x2="118" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="102" cy="292" r={L.r_foot} fill={W} />
+        <circle cx="118" cy="292" r={L.r_foot} fill={W} />
       </g>
+      {/* Frame B - overhead */}
+      <g className="anim-fade-b-fast">
+        <rect x="50" y="30" width="120" height="6" fill={accent} rx="3" />
+        <circle cx="50" cy="33" r="14" fill={accent} />
+        <circle cx="170" cy="33" r="14" fill={accent} />
+        <circle cx="110" cy="75" r={L.r_head} fill={W} />
+        <line x1="110" y1="86" x2="110" y2="180" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="110" y1="95" x2="88" y2="60" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="88" y1="60" x2="88" y2="32" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="110" y1="95" x2="132" y2="60" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="132" y1="60" x2="132" y2="32" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="105" y1="180" x2="100" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="115" y1="180" x2="120" y2="290" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="100" cy="292" r={L.r_foot} fill={W} />
+        <circle cx="120" cy="292" r={L.r_foot} fill={W} />
+      </g>
+      <g className="anim-fade-a-fast"><Label accent={accent} phase="1. FRONT SQUAT" cue="Codos arriba, barra en clavícula" /></g>
+      <g className="anim-fade-b-fast"><Label accent={accent} phase="2. PRESS" cue="Explota arriba, barra overhead" /></g>
     </svg>
   );
 }
 
 function SitupAnim({ accent }) {
   return (
-    <svg viewBox="0 0 240 180" className={animBase}>
-      <style>{useFlipKeys('su')}</style>
-      <line x1="15" y1="170" x2="225" y2="170" stroke={stroke} strokeWidth="2" opacity="0.25" />
-      {/* Frame A — lying flat, knees up */}
-      <g className="su-a">
-        <circle cx="50" cy="135" r="12" fill={stroke} />
-        <line x1="60" y1="142" x2="140" y2="155" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="50" y1="125" x2="40" y2="105" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="40" y1="105" x2="55" y2="100" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="140" y1="155" x2="170" y2="115" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="170" y1="115" x2="200" y2="155" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="200" y1="155" x2="200" y2="170" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+    <svg viewBox="0 0 260 200" className={animBase}>
+      <defs><filter id="su-blur"><feGaussianBlur stdDeviation="4" /></filter></defs>
+      <line x1="15" y1="188" x2="245" y2="188" stroke={W} strokeWidth="2" opacity="0.2" />
+      <g className="anim-muscle">
+        <ellipse cx="110" cy="150" rx="25" ry="12" fill={accent} filter="url(#su-blur)" />
       </g>
-      {/* Frame B — upright */}
-      <g className="su-b">
-        <circle cx="100" cy="60" r="12" fill={stroke} />
-        <line x1="105" y1="72" x2="145" y2="155" stroke={stroke} strokeWidth={sw + 2} strokeLinecap="round" />
-        <line x1="100" y1="73" x2="80" y2="60" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="80" y1="60" x2="100" y2="50" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="145" y1="155" x2="180" y2="115" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="180" y1="115" x2="210" y2="155" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
-        <line x1="210" y1="155" x2="210" y2="170" stroke={stroke} strokeWidth={sw} strokeLinecap="round" />
+      <path className="anim-arrow" d="M 60 160 Q 90 110 145 85" stroke={accent} strokeWidth="1.5" fill="none" opacity="0.5" />
+      <polygon points="143,88 148,82 151,89" fill={accent} opacity="0.6" />
+      {/* Frame A - lying flat */}
+      <g className="anim-fade-a">
+        <circle cx="45" cy="145" r={L.r_head} fill={W} />
+        <line x1="56" y1="150" x2="150" y2="160" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="45" y1="135" x2="38" y2="115" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="38" y1="115" x2="55" y2="108" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        {/* Knees bent up */}
+        <line x1="150" y1="160" x2="180" y2="115" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="180" y1="115" x2="215" y2="175" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="215" cy="178" r={L.r_foot} fill={W} />
       </g>
+      {/* Frame B - sitting up */}
+      <g className="anim-fade-b">
+        <circle cx="115" cy="75" r={L.r_head} fill={W} />
+        <line x1="118" y1="86" x2="150" y2="160" stroke={W} strokeWidth={L.sw_torso} strokeLinecap="round" />
+        <line x1="113" y1="88" x2="95" y2="75" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="95" y1="75" x2="115" y2="60" stroke={W} strokeWidth={L.sw_arm} strokeLinecap="round" />
+        <line x1="150" y1="160" x2="185" y2="115" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <line x1="185" y1="115" x2="215" y2="175" stroke={W} strokeWidth={L.sw_limb} strokeLinecap="round" />
+        <circle cx="215" cy="178" r={L.r_foot} fill={W} />
+      </g>
+      <g className="anim-fade-a"><Label accent={accent} phase="1. ABAJO" cue="Espalda baja en el piso" /></g>
+      <g className="anim-fade-b"><Label accent={accent} phase="2. ARRIBA" cue="Contrae abdomen (no tirones)" /></g>
     </svg>
   );
 }
+
 
 const ANIM_MAP = {
   squat: SquatAnim,
@@ -1242,6 +1462,40 @@ function Stylesheet() {
       .hatched {
         background-image: repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(255,255,255,0.03) 6px, rgba(255,255,255,0.03) 7px);
       }
+      
+      /* Shared animation classes for exercise technique SVGs */
+      @keyframes anim-crossfade-a {
+        0%, 35% { opacity: 1; }
+        50%, 85% { opacity: 0; }
+        100% { opacity: 1; }
+      }
+      @keyframes anim-crossfade-b {
+        0%, 35% { opacity: 0; }
+        50%, 85% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+      .anim-fade-a { animation: anim-crossfade-a 3.2s ease-in-out infinite; }
+      .anim-fade-b { animation: anim-crossfade-b 3.2s ease-in-out infinite; }
+      .anim-fade-a-fast { animation: anim-crossfade-a 2.2s ease-in-out infinite; }
+      .anim-fade-b-fast { animation: anim-crossfade-b 2.2s ease-in-out infinite; }
+      
+      @keyframes anim-muscle-pulse {
+        0%, 28%, 72%, 100% { opacity: 0; }
+        50% { opacity: 0.55; }
+      }
+      .anim-muscle { animation: anim-muscle-pulse 3.2s ease-in-out infinite; }
+      .anim-muscle-fast { animation: anim-muscle-pulse 2.2s ease-in-out infinite; }
+      
+      @keyframes anim-arrow-flow {
+        to { stroke-dashoffset: -14; }
+      }
+      .anim-arrow { stroke-dasharray: 3 3; animation: anim-arrow-flow 1.5s linear infinite; }
+      
+      @keyframes anim-breathing {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-2px); }
+      }
+      .anim-breathe { animation: anim-breathing 2.8s ease-in-out infinite; }
       
       .card-surface {
         background: linear-gradient(180deg, rgba(28, 25, 23, 0.7), rgba(12, 10, 9, 0.7));
