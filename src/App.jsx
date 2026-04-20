@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Check, Eye, X, Calendar, TrendingUp, Flame, Plus, Minus, RotateCcw, Trophy, Clock, Dumbbell, Zap, Target, BarChart3, History, Activity, ChevronDown, ChevronUp, Trash2, Award, Layers } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Eye, X, Calendar, TrendingUp, Flame, Plus, Minus, RotateCcw, Trophy, Clock, Dumbbell, Zap, Target, BarChart3, History, Activity, ChevronDown, ChevronUp, Trash2, Award, Layers, Volume2, VolumeX, SkipForward, Settings } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 // ============================================================
@@ -394,6 +394,55 @@ const findExerciseDef = (id) => {
     if (ex) return { ...ex, workoutId: w.id, accent: w.accent };
   }
   return null;
+};
+
+// Parse "2:00" -> 120 seconds, "1:30" -> 90
+const parseRestSeconds = (restStr) => {
+  if (!restStr) return 90;
+  const parts = String(restStr).split(':');
+  const mins = parseInt(parts[0]) || 0;
+  const secs = parseInt(parts[1]) || 0;
+  return mins * 60 + secs;
+};
+
+const formatSeconds = (s) => {
+  const mins = Math.floor(Math.max(0, s) / 60);
+  const secs = Math.floor(Math.max(0, s) % 60);
+  return `${mins}:${String(secs).padStart(2, '0')}`;
+};
+
+// Synthetic beep using Web Audio (no sound files needed)
+let _audioCtx = null;
+const getAudioCtx = () => {
+  if (!_audioCtx) {
+    try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) {}
+  }
+  return _audioCtx;
+};
+
+const playRestDoneSound = () => {
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
+  // Three ascending beeps
+  [880, 1100, 1320].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    const start = ctx.currentTime + i * 0.18;
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(0.25, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15);
+    osc.start(start);
+    osc.stop(start + 0.16);
+  });
+};
+
+const vibrate = (pattern) => {
+  try { if ('vibrate' in navigator) navigator.vibrate(pattern); } catch (_) {}
 };
 
 // ============================================================
@@ -1999,6 +2048,124 @@ function HistoryView({ state, onDeleteSession }) {
 }
 
 // ============================================================
+// REST TIMER
+// ============================================================
+
+function RestTimer({ timer, soundEnabled, onToggleSound, onDismiss, onAddTime }) {
+  const [remaining, setRemaining] = useState(() => Math.max(0, Math.round((timer.endAt - Date.now()) / 1000)));
+  const [hasAlarmed, setHasAlarmed] = useState(false);
+  
+  useEffect(() => {
+    // Reset alarmed state when timer changes
+    setHasAlarmed(false);
+    const tick = () => {
+      const r = Math.max(0, Math.round((timer.endAt - Date.now()) / 1000));
+      setRemaining(r);
+    };
+    tick();
+    const id = setInterval(tick, 250);
+    return () => clearInterval(id);
+  }, [timer.endAt]);
+  
+  useEffect(() => {
+    if (remaining === 0 && !hasAlarmed) {
+      setHasAlarmed(true);
+      if (soundEnabled) {
+        playRestDoneSound();
+        vibrate([180, 80, 180, 80, 180]);
+      }
+    }
+  }, [remaining, hasAlarmed, soundEnabled]);
+  
+  const pct = Math.min(100, Math.max(0, ((timer.duration - remaining) / timer.duration) * 100));
+  const isDone = remaining === 0;
+  
+  return (
+    <div className="fixed left-0 right-0 z-30 px-3 slide-up pb-safe" style={{ bottom: 'calc(60px + env(safe-area-inset-bottom))' }}>
+      <div className="max-w-md md:max-w-lg mx-auto">
+        <div 
+          className="rounded-2xl overflow-hidden relative border"
+          style={{
+            background: 'linear-gradient(180deg, rgba(28, 25, 23, 0.95), rgba(12, 10, 9, 0.95))',
+            backdropFilter: 'blur(16px)',
+            borderColor: isDone ? timer.accent : timer.accent + '60',
+            boxShadow: isDone 
+              ? `0 0 40px ${timer.accent}90, 0 10px 30px -5px rgba(0,0,0,0.6)` 
+              : `0 0 24px ${timer.accent}30, 0 10px 30px -5px rgba(0,0,0,0.6)`,
+          }}
+        >
+          {/* Progress fill from left */}
+          <div 
+            className="absolute inset-y-0 left-0 transition-all duration-200"
+            style={{
+              width: `${pct}%`,
+              background: `linear-gradient(90deg, ${timer.accent}25, ${timer.accent}10)`,
+            }}
+          />
+          {/* "Done" glow pulse */}
+          {isDone && (
+            <div className="absolute inset-0 opacity-60 glow-pulse pointer-events-none" style={{ background: `radial-gradient(circle at center, ${timer.accent}30, transparent 60%)` }} />
+          )}
+          
+          <div className="relative p-3 flex items-center gap-3">
+            <div 
+              className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${isDone ? 'done-pop' : ''}`} 
+              style={{ background: timer.accent + '25', border: `1px solid ${timer.accent}60` }}
+            >
+              {isDone 
+                ? <Check className="w-5 h-5" style={{ color: timer.accent }} strokeWidth={3} /> 
+                : <Clock className="w-5 h-5" style={{ color: timer.accent }} />}
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <div className="text-[9px] uppercase tracking-[0.2em] body-font font-bold truncate" style={{ color: timer.accent }}>
+                {isDone ? '¡A la carga!' : 'Descanso'}
+                <span className="text-stone-500 font-normal tracking-normal normal-case ml-1.5">· {timer.exerciseName}</span>
+              </div>
+              <div className="display-font text-3xl text-white leading-none mt-1">
+                {isDone ? 'SIGUIENTE' : (
+                  <span className="mono-font font-bold">
+                    {formatSeconds(remaining)}
+                  </span>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-1 shrink-0">
+              {!isDone && (
+                <button 
+                  onClick={onAddTime} 
+                  className="button-tap px-2 h-9 rounded-lg bg-stone-900/80 hover:bg-stone-800 border border-stone-800 text-[11px] text-stone-300 font-bold body-font"
+                  title="Agregar 30s"
+                >
+                  +30s
+                </button>
+              )}
+              <button 
+                onClick={onToggleSound} 
+                className="button-tap w-9 h-9 rounded-lg bg-stone-900/80 hover:bg-stone-800 border border-stone-800 flex items-center justify-center"
+                title={soundEnabled ? 'Silenciar' : 'Activar sonido'}
+              >
+                {soundEnabled 
+                  ? <Volume2 className="w-3.5 h-3.5 text-stone-400" /> 
+                  : <VolumeX className="w-3.5 h-3.5 text-stone-500" />}
+              </button>
+              <button 
+                onClick={onDismiss} 
+                className="button-tap w-9 h-9 rounded-lg bg-stone-900/80 hover:bg-stone-800 border border-stone-800 flex items-center justify-center"
+                title="Cerrar"
+              >
+                <X className="w-3.5 h-3.5 text-stone-400" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // BOTTOM NAVIGATION
 // ============================================================
 
@@ -2047,6 +2214,10 @@ export default function App() {
   const [selectedDay, setSelectedDay] = useState(defaultDay);
   const [demoExercise, setDemoExercise] = useState(null);
   const [activeTab, setActiveTab] = useState('train');
+  const [restTimer, setRestTimer] = useState(null);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    try { return localStorage.getItem('gym-sound') !== '0'; } catch (_) { return true; }
+  });
   
   // Load state on mount
   useEffect(() => {
@@ -2109,6 +2280,37 @@ export default function App() {
         },
       };
     });
+    
+    // Auto-start rest timer when marking a set as done
+    if (field === 'done' && value === true) {
+      const ex = workout.exercises.find(e => e.id === exerciseId);
+      if (ex && !ex.isTime) {
+        const duration = parseRestSeconds(ex.rest);
+        // Prime audio context on user gesture (needed for iOS)
+        if (soundEnabled) getAudioCtx();
+        setRestTimer({
+          exerciseId: ex.id,
+          exerciseName: ex.name,
+          duration,
+          endAt: Date.now() + duration * 1000,
+          accent: workout.accent,
+        });
+      }
+    }
+  };
+  
+  const addRestTime = (seconds = 30) => {
+    setRestTimer(t => t ? { ...t, duration: t.duration + seconds, endAt: t.endAt + seconds * 1000 } : null);
+  };
+  
+  const toggleSound = () => {
+    setSoundEnabled(s => {
+      const next = !s;
+      try { localStorage.setItem('gym-sound', next ? '1' : '0'); } catch (_) {}
+      // Prime audio on toggle on too
+      if (next) getAudioCtx();
+      return next;
+    });
   };
   
   const saveSession = () => {
@@ -2159,7 +2361,7 @@ export default function App() {
       <div className="side-decor-l hidden md:block" />
       <div className="side-decor-r hidden md:block" />
       
-      <div className="max-w-md md:max-w-lg mx-auto relative z-10 pb-32">
+      <div className={`max-w-md md:max-w-lg mx-auto relative z-10 transition-[padding] ${restTimer && activeTab === 'train' ? 'pb-48' : 'pb-32'}`}>
         <Header stats={state.stats} today={today} daysSince={daysSince} />
         
         {activeTab === 'train' && (
@@ -2233,6 +2435,16 @@ export default function App() {
         
         {activeTab === 'history' && <div className="fade-in"><HistoryView state={state} onDeleteSession={deleteSession} /></div>}
       </div>
+      
+      {restTimer && activeTab === 'train' && (
+        <RestTimer 
+          timer={restTimer}
+          soundEnabled={soundEnabled}
+          onToggleSound={toggleSound}
+          onDismiss={() => setRestTimer(null)}
+          onAddTime={() => addRestTime(30)}
+        />
+      )}
       
       <BottomNav active={activeTab} onChange={setActiveTab} />
       
