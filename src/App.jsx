@@ -1795,84 +1795,87 @@ function StatsView({ state }) {
   
   return (
     <div className="px-5 py-4 space-y-5">
-      {/* Top stats grid */}
-      <div className="grid grid-cols-2 gap-2">
+      {/* Top stats grid — 2 cols mobile, 4 cols desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
         <StatCard label="Sesiones" value={state.stats.totalSessions} sub="totales" icon={Flame} accent="#f97316" />
         <StatCard label="Esta semana" value={`${sessionsThisWeek}/3`} sub={sessionsThisWeek >= 3 ? '¡Completa!' : `${3 - sessionsThisWeek} restantes`} icon={Calendar} accent="#22d3ee" />
         <StatCard label="Volumen total" value={formatVolume(totalVolume)} sub="kg levantados" icon={Layers} accent="#a3e635" />
         <StatCard label="Última sesión" value={daysSince === 0 ? 'Hoy' : daysSince === 1 ? 'Ayer' : `${daysSince}d`} sub={daysSince > 3 ? '¡A entrenar!' : 'recuperado'} icon={Activity} accent="#fbbf24" />
       </div>
       
-      {/* Exercise progression */}
-      <div className="bg-stone-950/70 border border-stone-800/80 rounded-xl overflow-hidden">
-        <div className="px-4 pt-3.5 pb-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" style={{ color: selectedDef?.accent ?? '#f97316' }} />
-            <span className="display-font text-lg text-white">PROGRESIÓN</span>
-          </div>
-          {progressionData.length > 0 && (
-            <div className="text-right">
-              <div className="mono-font text-sm font-bold" style={{ color: selectedDef?.accent }}>
-                {progressionData[progressionData.length - 1].value} kg
+      {/* Two-column layout on desktop for main charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Exercise progression */}
+        <div className="card-surface rounded-xl overflow-hidden">
+          <div className="px-4 pt-3.5 pb-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" style={{ color: selectedDef?.accent ?? '#f97316' }} />
+              <span className="display-font text-lg text-white">PROGRESIÓN</span>
+            </div>
+            {progressionData.length > 0 && (
+              <div className="text-right">
+                <div className="mono-font text-sm font-bold" style={{ color: selectedDef?.accent }}>
+                  {progressionData[progressionData.length - 1].value} kg
+                </div>
+                <div className="text-[9px] uppercase tracking-widest text-stone-500 body-font">1RM est.</div>
               </div>
-              <div className="text-[9px] uppercase tracking-widest text-stone-500 body-font">1RM est.</div>
+            )}
+          </div>
+          
+          {/* Exercise picker */}
+          <div className="px-4 pb-2 overflow-x-auto">
+            <div className="flex gap-1.5 min-w-min">
+              {exercisesWithData.map(ex => (
+                <button
+                  key={ex.id}
+                  onClick={() => setSelectedExercise(ex.id)}
+                  className={`button-tap shrink-0 px-2.5 py-1.5 rounded text-[11px] body-font font-bold border transition-colors ${
+                    selectedExercise === ex.id ? 'bg-stone-800 text-white border-stone-700' : 'bg-stone-900 text-stone-500 border-stone-900 hover:border-stone-800'
+                  }`}
+                >
+                  {ex.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {selectedDef && (
+            <div className="px-2 pb-3">
+              <ProgressionChart data={progressionData} accent={selectedDef.accent} />
             </div>
           )}
         </div>
         
-        {/* Exercise picker */}
-        <div className="px-4 pb-2 overflow-x-auto">
-          <div className="flex gap-1.5 min-w-min">
-            {exercisesWithData.map(ex => (
-              <button
-                key={ex.id}
-                onClick={() => setSelectedExercise(ex.id)}
-                className={`shrink-0 px-2.5 py-1.5 rounded text-[11px] body-font font-bold border transition-colors ${
-                  selectedExercise === ex.id ? 'bg-stone-800 text-white border-stone-700' : 'bg-stone-900 text-stone-500 border-stone-900 hover:border-stone-800'
-                }`}
-              >
-                {ex.name}
-              </button>
-            ))}
+        {/* Volume per session */}
+        <div className="card-surface rounded-xl overflow-hidden">
+          <div className="px-4 pt-3.5 pb-1 flex items-center gap-2">
+            <Layers className="w-4 h-4 text-orange-500" />
+            <span className="display-font text-lg text-white">VOLUMEN POR SESIÓN</span>
           </div>
-        </div>
-        
-        {selectedDef && (
+          <p className="px-4 pb-2 text-[10px] text-stone-500 body-font uppercase tracking-wider">Últimas {volumeData.length}</p>
           <div className="px-2 pb-3">
-            <ProgressionChart data={progressionData} accent={selectedDef.accent} />
+            <VolumeChart data={volumeData} accent="#f97316" />
           </div>
-        )}
-      </div>
-      
-      {/* Volume per session */}
-      <div className="bg-stone-950/70 border border-stone-800/80 rounded-xl overflow-hidden">
-        <div className="px-4 pt-3.5 pb-1 flex items-center gap-2">
-          <Layers className="w-4 h-4 text-orange-500" />
-          <span className="display-font text-lg text-white">VOLUMEN POR SESIÓN</span>
-        </div>
-        <p className="px-4 pb-2 text-[10px] text-stone-500 body-font uppercase tracking-wider">Últimas {volumeData.length}</p>
-        <div className="px-2 pb-3">
-          <VolumeChart data={volumeData} accent="#f97316" />
         </div>
       </div>
       
       {/* Records */}
       {records.length > 0 && (
-        <div className="bg-stone-950/70 border border-stone-800/80 rounded-xl overflow-hidden">
+        <div className="card-surface rounded-xl overflow-hidden">
           <div className="px-4 pt-3.5 pb-2 flex items-center gap-2">
             <Award className="w-4 h-4 text-amber-400" />
             <span className="display-font text-lg text-white">RÉCORDS PERSONALES</span>
           </div>
-          <div className="px-4 pb-4 space-y-2">
+          <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
             {records.map((r, i) => (
-              <div key={r.exId} className="flex items-center gap-3 py-1.5">
-                <div className="display-font text-2xl text-stone-700 w-6">{i + 1}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-white body-font font-bold truncate">{r.def.name}</div>
-                  <div className="text-[10px] text-stone-500 body-font">{formatDate(r.date)}</div>
+              <div key={r.exId} className="flex md:flex-col items-center md:items-start gap-3 md:gap-1 py-2 md:p-3 md:bg-stone-900/40 md:rounded-lg md:border md:border-stone-800/60">
+                <div className="display-font text-2xl md:text-3xl text-stone-700 w-6 md:w-auto">{i + 1}</div>
+                <div className="flex-1 md:w-full min-w-0">
+                  <div className="text-sm text-white body-font font-bold truncate md:min-h-[40px] md:leading-tight">{r.def.name}</div>
+                  <div className="text-[10px] text-stone-500 body-font mt-0.5">{formatDate(r.date)}</div>
                 </div>
-                <div className="text-right">
-                  <div className="mono-font text-base font-bold" style={{ color: r.def.accent }}>{r.e1rm} kg</div>
+                <div className="text-right md:text-left md:w-full md:pt-1 md:border-t md:border-stone-800/60 md:mt-1">
+                  <div className="mono-font text-base md:text-xl font-bold" style={{ color: r.def.accent }}>{r.e1rm} kg</div>
                   <div className="mono-font text-[10px] text-stone-500">{r.weight}×{r.reps}</div>
                 </div>
               </div>
@@ -2014,7 +2017,7 @@ function HistoryView({ state, onDeleteSession }) {
       <div className="flex items-baseline justify-between">
         <div>
           <div className="text-[10px] uppercase tracking-widest text-stone-600 body-font font-bold">Total</div>
-          <div className="display-font text-3xl text-white">{allSessions.length} sesiones</div>
+          <div className="display-font text-3xl lg:text-4xl text-white">{allSessions.length} sesiones</div>
         </div>
       </div>
       
@@ -2031,7 +2034,7 @@ function HistoryView({ state, onDeleteSession }) {
                 {weekSessions.length} ses · {formatVolume(weekVolume)}
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
               {weekSessions.map(s => (
                 <HistoryItem
                   key={s.date}
@@ -2043,6 +2046,98 @@ function HistoryView({ state, onDeleteSession }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// ============================================================
+// SIDEBAR NAV (desktop)
+// ============================================================
+
+function SidebarNav({ active, onChange, stats, today, daysSince }) {
+  const todayWorkoutId = DAY_TO_WORKOUT[today];
+  const todayWorkout = todayWorkoutId ? WORKOUTS[todayWorkoutId] : null;
+  
+  const tabs = [
+    { id: 'train', label: 'Entrenar', icon: Dumbbell },
+    { id: 'stats', label: 'Progreso', icon: BarChart3 },
+    { id: 'history', label: 'Historial', icon: History },
+  ];
+  
+  return (
+    <div className="h-full flex flex-col p-5 relative z-10">
+      {/* Brand */}
+      <div className="flex items-center gap-3 mb-8">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
+          <Dumbbell className="w-5 h-5 text-stone-950" strokeWidth={2.5} />
+        </div>
+        <div>
+          <div className="text-[9px] uppercase tracking-[0.3em] text-stone-500 body-font font-bold leading-none">Gym</div>
+          <div className="display-font text-xl text-white leading-none mt-1">TRACKER</div>
+        </div>
+      </div>
+      
+      {/* Today indicator */}
+      <div className="mb-8 p-4 rounded-xl card-surface relative overflow-hidden">
+        {todayWorkout && (
+          <div className="absolute inset-0 opacity-40 pointer-events-none" style={{ background: `radial-gradient(circle at 100% 0%, ${todayWorkout.accent}20, transparent 60%)` }} />
+        )}
+        <div className="relative">
+          <div className="text-[9px] uppercase tracking-widest text-stone-500 body-font font-bold mb-1">Hoy es</div>
+          <div className="display-font text-2xl text-white leading-none">{DAYS_ES[today]}</div>
+          {todayWorkout && (
+            <div className="flex items-center gap-1.5 mt-3">
+              <div className="w-1.5 h-1.5 rounded-full today-pulse" style={{ background: todayWorkout.accent }} />
+              <span className="text-[10px] uppercase tracking-widest body-font font-bold" style={{ color: todayWorkout.accent }}>
+                Te toca {todayWorkout.name}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Nav items */}
+      <nav className="space-y-1 flex-1">
+        {tabs.map(t => {
+          const Icon = t.icon;
+          const isActive = active === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => onChange(t.id)}
+              className={`button-tap w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-left ${
+                isActive 
+                  ? 'bg-stone-900 text-white' 
+                  : 'text-stone-500 hover:bg-stone-900/60 hover:text-stone-300'
+              }`}
+              style={isActive ? { boxShadow: '0 0 0 1px #44403c' } : {}}
+            >
+              <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-orange-500' : ''}`} strokeWidth={isActive ? 2.5 : 2} />
+              <span className="text-sm body-font font-bold uppercase tracking-wider">{t.label}</span>
+              {isActive && <div className="ml-auto w-1 h-5 bg-orange-500 rounded-full shadow-[0_0_8px_rgba(249,115,22,0.6)]" />}
+            </button>
+          );
+        })}
+      </nav>
+      
+      {/* Stats footer */}
+      <div className="mt-6 pt-5 border-t border-stone-800/80 space-y-2.5">
+        <div className="flex items-center gap-2">
+          <Flame className="w-3.5 h-3.5 text-orange-500" />
+          <span className="mono-font text-xs text-stone-300">
+            <span className="font-bold text-white">{stats.totalSessions}</span>
+            <span className="text-stone-500"> sesiones</span>
+          </span>
+        </div>
+        {daysSince !== null && (
+          <div className="flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full ${daysSince <= 1 ? 'bg-lime-400 glow-pulse' : daysSince <= 3 ? 'bg-amber-400' : 'bg-stone-600'}`} />
+            <span className="mono-font text-xs text-stone-500">
+              {daysSince === 0 ? 'Entrenaste hoy' : daysSince === 1 ? 'Entrenaste ayer' : `Hace ${daysSince} días`}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -2081,8 +2176,10 @@ function RestTimer({ timer, soundEnabled, onToggleSound, onDismiss, onAddTime })
   const isDone = remaining === 0;
   
   return (
-    <div className="fixed left-0 right-0 z-30 px-3 slide-up pb-safe" style={{ bottom: 'calc(60px + env(safe-area-inset-bottom))' }}>
-      <div className="max-w-md md:max-w-lg mx-auto">
+    <div 
+      className="fixed left-0 right-0 lg:left-64 z-30 px-3 lg:px-8 slide-up bottom-[calc(60px+env(safe-area-inset-bottom))] lg:bottom-6"
+    >
+      <div className="max-w-md md:max-w-lg lg:max-w-2xl mx-auto">
         <div 
           className="rounded-2xl overflow-hidden relative border"
           style={{
@@ -2358,82 +2455,142 @@ export default function App() {
       <Stylesheet />
       <div className="ambient-bg" />
       <div className="grain" />
-      <div className="side-decor-l hidden md:block" />
-      <div className="side-decor-r hidden md:block" />
       
-      <div className={`max-w-md md:max-w-lg mx-auto relative z-10 transition-[padding] ${restTimer && activeTab === 'train' ? 'pb-48' : 'pb-32'}`}>
-        <Header stats={state.stats} today={today} daysSince={daysSince} />
+      <div className="flex min-h-screen relative z-10">
+        {/* Desktop sidebar */}
+        <aside className="hidden lg:block w-64 shrink-0 border-r border-stone-800/60 bg-stone-950/40 backdrop-blur-sm sticky top-0 h-screen">
+          <SidebarNav 
+            active={activeTab} 
+            onChange={setActiveTab} 
+            stats={state.stats} 
+            today={today} 
+            daysSince={daysSince} 
+          />
+        </aside>
         
-        {activeTab === 'train' && (
-          <div className="fade-in">
-            <DayTabs selected={selectedDay} onSelect={setSelectedDay} today={today} />
-            
-            {/* Workout focus header */}
-            <div className="px-5 pb-3">
-              <div className="flex items-center justify-between mb-2 gap-3">
-                <div className="min-w-0">
-                  <div className="text-[10px] uppercase tracking-widest text-stone-600 body-font font-bold">Enfoque</div>
-                  <div className="display-font text-2xl sm:text-3xl text-white leading-tight truncate">{workout.subtitle}</div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="mono-font text-3xl sm:text-4xl font-bold leading-none" style={{ color: workout.accent }}>{progressPct}<span className="text-xl">%</span></div>
-                  <div className="text-[10px] uppercase tracking-widest text-stone-600 body-font font-bold mt-1">
-                    {completion.done}/{completion.total} series
-                  </div>
-                </div>
+        {/* Main content */}
+        <main className={`flex-1 min-w-0 transition-[padding] ${restTimer && activeTab === 'train' ? 'pb-48' : 'pb-32'} lg:pb-12`}>
+          {/* Header: mobile only (sidebar replaces it on desktop) */}
+          <div className="lg:hidden">
+            <Header stats={state.stats} today={today} daysSince={daysSince} />
+          </div>
+          
+          {/* Desktop page header */}
+          <div className="hidden lg:flex items-center justify-between px-8 pt-8 pb-4">
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.25em] text-stone-500 body-font font-bold">
+                {activeTab === 'train' ? 'Entrenamiento' : activeTab === 'stats' ? 'Análisis' : 'Registro'}
               </div>
-              <div className="h-1.5 bg-stone-900 rounded-full overflow-hidden">
-                <div 
-                  className="h-full rounded-full transition-all duration-500" 
-                  style={{ 
-                    width: `${progressPct}%`, 
-                    background: `linear-gradient(90deg, ${workout.accent}, ${workout.accent}cc)`,
-                    boxShadow: progressPct > 0 ? `0 0 12px ${workout.accent}80` : 'none',
-                  }} 
-                />
+              <div className="display-font text-4xl text-white leading-none mt-1">
+                {activeTab === 'train' ? 'SESIÓN DE HOY' : activeTab === 'stats' ? 'TU PROGRESO' : 'HISTORIAL COMPLETO'}
               </div>
-            </div>
-            
-            {/* Exercises */}
-            <div className="px-5 pb-4 space-y-3">
-              {workout.exercises.map((ex) => (
-                <ExerciseCard
-                  key={ex.id}
-                  exercise={ex}
-                  sessionData={session.exercises[ex.id] ?? { sets: Array.from({ length: ex.sets }, () => ({ weight: '', reps: '', done: false })) }}
-                  lastSessionData={lastSession}
-                  accent={workout.accent}
-                  onUpdateSet={updateSet}
-                  onShowDemo={setDemoExercise}
-                />
-              ))}
-            </div>
-            
-            {/* Finisher */}
-            <div className="px-5 pb-4">
-              <FinisherCard finisher={workout.finisher} accent={workout.accent} onShowDemo={setDemoExercise} />
-            </div>
-            
-            {/* Completion / Save */}
-            <div className="px-5 pb-6">
-              {completion.complete ? (
-                <CompletionBanner workout={workout} onSave={saveSession} onReset={resetSession} />
-              ) : (
-                <button
-                  onClick={resetSession}
-                  className="button-tap w-full py-2.5 text-xs uppercase tracking-widest text-stone-600 body-font font-bold hover:text-stone-400 flex items-center justify-center gap-2"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  Reiniciar sesión
-                </button>
-              )}
             </div>
           </div>
-        )}
-        
-        {activeTab === 'stats' && <div className="fade-in"><StatsView state={state} /></div>}
-        
-        {activeTab === 'history' && <div className="fade-in"><HistoryView state={state} onDeleteSession={deleteSession} /></div>}
+          
+          <div className="max-w-md md:max-w-2xl lg:max-w-5xl mx-auto lg:px-8">
+            {activeTab === 'train' && (
+              <div className="fade-in">
+                <div className="lg:hidden">
+                  <DayTabs selected={selectedDay} onSelect={setSelectedDay} today={today} />
+                </div>
+                
+                {/* Desktop day tabs — bigger and more prominent */}
+                <div className="hidden lg:grid grid-cols-3 gap-3 px-5 pb-4">
+                  {Object.values(WORKOUTS).map((w) => {
+                    const isSelected = selectedDay === w.id;
+                    const isToday = DAY_TO_WORKOUT[today] === w.id;
+                    return (
+                      <button
+                        key={w.id}
+                        onClick={() => setSelectedDay(w.id)}
+                        className={`button-tap relative p-4 rounded-xl border transition-all text-left overflow-hidden ${
+                          isSelected ? 'bg-stone-900/80 border-stone-600' : 'bg-stone-950/60 border-stone-800/80 hover:border-stone-700'
+                        }`}
+                        style={isSelected ? { 
+                          borderColor: w.accent + '60', 
+                          boxShadow: `0 0 0 1px ${w.accent}30, 0 8px 32px -8px ${w.accent}30`,
+                          background: `linear-gradient(180deg, ${w.accent}10, transparent 80%)`,
+                        } : {}}
+                      >
+                        {isToday && (
+                          <div className="absolute top-3 right-3 w-2 h-2 rounded-full today-pulse" style={{ background: w.accent }} />
+                        )}
+                        <div className="display-font text-3xl leading-none" style={{ color: isSelected ? w.accent : '#a8a29e' }}>{w.name}</div>
+                        <div className="text-[11px] uppercase tracking-wider mt-2 text-stone-400 body-font font-semibold leading-tight">{w.subtitle}</div>
+                        <div className="text-[10px] mt-1.5 text-stone-600 body-font">{w.suggestedDay}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                {/* Workout focus header */}
+                <div className="px-5 pb-4">
+                  <div className="flex items-center justify-between mb-3 gap-3">
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-widest text-stone-600 body-font font-bold">Enfoque</div>
+                      <div className="display-font text-2xl sm:text-3xl lg:text-4xl text-white leading-tight truncate">{workout.subtitle}</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="mono-font text-3xl sm:text-4xl lg:text-5xl font-bold leading-none" style={{ color: workout.accent }}>{progressPct}<span className="text-xl lg:text-2xl">%</span></div>
+                      <div className="text-[10px] uppercase tracking-widest text-stone-600 body-font font-bold mt-1">
+                        {completion.done}/{completion.total} series
+                      </div>
+                    </div>
+                  </div>
+                  <div className="h-1.5 bg-stone-900 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full rounded-full transition-all duration-500" 
+                      style={{ 
+                        width: `${progressPct}%`, 
+                        background: `linear-gradient(90deg, ${workout.accent}, ${workout.accent}cc)`,
+                        boxShadow: progressPct > 0 ? `0 0 12px ${workout.accent}80` : 'none',
+                      }} 
+                    />
+                  </div>
+                </div>
+                
+                {/* Exercises — 2-col grid on md+ */}
+                <div className="px-5 pb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {workout.exercises.map((ex) => (
+                    <ExerciseCard
+                      key={ex.id}
+                      exercise={ex}
+                      sessionData={session.exercises[ex.id] ?? { sets: Array.from({ length: ex.sets }, () => ({ weight: '', reps: '', done: false })) }}
+                      lastSessionData={lastSession}
+                      accent={workout.accent}
+                      onUpdateSet={updateSet}
+                      onShowDemo={setDemoExercise}
+                    />
+                  ))}
+                </div>
+                
+                {/* Finisher — full width */}
+                <div className="px-5 pb-4">
+                  <FinisherCard finisher={workout.finisher} accent={workout.accent} onShowDemo={setDemoExercise} />
+                </div>
+                
+                {/* Completion / Save */}
+                <div className="px-5 pb-6">
+                  {completion.complete ? (
+                    <CompletionBanner workout={workout} onSave={saveSession} onReset={resetSession} />
+                  ) : (
+                    <button
+                      onClick={resetSession}
+                      className="button-tap w-full py-2.5 text-xs uppercase tracking-widest text-stone-600 body-font font-bold hover:text-stone-400 flex items-center justify-center gap-2"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      Reiniciar sesión
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {activeTab === 'stats' && <div className="fade-in"><StatsView state={state} /></div>}
+            
+            {activeTab === 'history' && <div className="fade-in"><HistoryView state={state} onDeleteSession={deleteSession} /></div>}
+          </div>
+        </main>
       </div>
       
       {restTimer && activeTab === 'train' && (
@@ -2446,7 +2603,9 @@ export default function App() {
         />
       )}
       
-      <BottomNav active={activeTab} onChange={setActiveTab} />
+      <div className="lg:hidden">
+        <BottomNav active={activeTab} onChange={setActiveTab} />
+      </div>
       
       <DemoModal exercise={demoExercise} accent={workout.accent} onClose={() => setDemoExercise(null)} />
     </div>
