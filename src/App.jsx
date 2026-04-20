@@ -1117,21 +1117,41 @@ function Stylesheet() {
       @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
       .display-font { font-family: 'Bebas Neue', Impact, sans-serif; letter-spacing: 0.02em; }
       .body-font { font-family: 'Manrope', system-ui, sans-serif; }
-      .mono-font { font-family: 'JetBrains Mono', monospace; }
+      .mono-font { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
       
       .gym-app {
         font-family: 'Manrope', system-ui, sans-serif;
-        background: 
-          radial-gradient(ellipse at top, rgba(249, 115, 22, 0.06), transparent 50%),
-          radial-gradient(ellipse at bottom, rgba(34, 211, 238, 0.04), transparent 50%),
-          #0a0908;
+        background: #050403;
         color: #fafaf9;
         min-height: 100vh;
+        min-height: 100dvh;
+        position: relative;
+        isolation: isolate;
+      }
+      
+      /* Ambient decorative backgrounds */
+      .ambient-bg {
+        position: fixed; inset: 0; pointer-events: none; z-index: 0;
+        background: 
+          radial-gradient(ellipse 800px 600px at 50% -10%, rgba(249, 115, 22, 0.10), transparent 50%),
+          radial-gradient(ellipse 900px 700px at 50% 110%, rgba(34, 211, 238, 0.05), transparent 50%),
+          radial-gradient(ellipse 600px 500px at 85% 40%, rgba(163, 230, 53, 0.04), transparent 50%);
       }
       
       .grain {
-        position: absolute; inset: 0; pointer-events: none; opacity: 0.03;
+        position: fixed; inset: 0; pointer-events: none; opacity: 0.025; z-index: 1;
+        mix-blend-mode: overlay;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      
+      /* Decorative side panels for wide screens */
+      @media (min-width: 768px) {
+        .side-decor-l, .side-decor-r {
+          position: fixed; top: 0; bottom: 0; width: calc(50vw - 240px); pointer-events: none; z-index: 0;
+          background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.03), transparent 70%);
+        }
+        .side-decor-l { left: 0; }
+        .side-decor-r { right: 0; }
       }
       
       .number-input::-webkit-outer-spin-button,
@@ -1139,48 +1159,108 @@ function Stylesheet() {
       .number-input { -moz-appearance: textfield; }
       
       @keyframes pulse-ring {
-        0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.5); }
-        70% { box-shadow: 0 0 0 12px rgba(249, 115, 22, 0); }
+        0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.6); }
+        70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); }
         100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
       }
       .today-pulse { animation: pulse-ring 2s infinite; }
       
       @keyframes slide-up {
-        from { opacity: 0; transform: translateY(20px); }
+        from { opacity: 0; transform: translateY(14px); }
         to { opacity: 1; transform: translateY(0); }
       }
-      .slide-up { animation: slide-up 0.4s ease-out; }
+      .slide-up { animation: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+      
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .fade-in { animation: fade-in 0.3s ease-out; }
       
       @keyframes done-pop {
         0% { transform: scale(1); }
-        50% { transform: scale(1.15); }
+        50% { transform: scale(1.18); }
         100% { transform: scale(1); }
       }
-      .done-pop { animation: done-pop 0.3s ease-out; }
+      .done-pop { animation: done-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+      
+      @keyframes glow-pulse {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+      }
+      .glow-pulse { animation: glow-pulse 2.5s ease-in-out infinite; }
       
       .hatched {
         background-image: repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(255,255,255,0.03) 6px, rgba(255,255,255,0.03) 7px);
+      }
+      
+      .card-surface {
+        background: linear-gradient(180deg, rgba(28, 25, 23, 0.7), rgba(12, 10, 9, 0.7));
+        border: 1px solid rgba(68, 64, 60, 0.4);
+        backdrop-filter: blur(12px);
+      }
+      
+      .card-hover { transition: border-color 0.2s, transform 0.2s; }
+      .card-hover:active { transform: scale(0.995); }
+      
+      .button-tap { transition: transform 0.1s; }
+      .button-tap:active { transform: scale(0.96); }
+      
+      /* iOS-style bottom sheet for modal */
+      @media (max-width: 640px) {
+        .modal-sheet { max-height: 92vh; border-radius: 20px 20px 0 0; }
       }
     `}</style>
   );
 }
 
-function Header({ stats, today }) {
+function Header({ stats, today, daysSince }) {
+  const todayWorkoutId = DAY_TO_WORKOUT[today];
+  const todayWorkout = todayWorkoutId ? WORKOUTS[todayWorkoutId] : null;
+  
   return (
-    <div className="px-5 pt-6 pb-4 border-b border-stone-800/60">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Dumbbell className="w-5 h-5 text-orange-500" />
-          <span className="text-xs uppercase tracking-[0.25em] text-stone-400 body-font font-bold">Tracker</span>
+    <div className="pt-safe">
+      <div className="px-5 pt-4 pb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
+            <Dumbbell className="w-4 h-4 text-stone-950" strokeWidth={2.5} />
+          </div>
+          <div>
+            <div className="text-[9px] uppercase tracking-[0.3em] text-stone-500 body-font font-bold leading-none">Gym</div>
+            <div className="display-font text-lg text-white leading-none mt-0.5">TRACKER</div>
+          </div>
         </div>
         <div className="text-right">
-          <div className="text-[10px] text-stone-500 body-font uppercase tracking-wider">Hoy</div>
-          <div className="display-font text-lg text-stone-200 leading-none">{DAYS_ES[today]}</div>
+          <div className="text-[9px] text-stone-500 body-font uppercase tracking-widest leading-none">Hoy</div>
+          <div className="display-font text-base text-stone-200 leading-none mt-1">{DAYS_ES[today]}</div>
         </div>
       </div>
-      <div className="mt-3 flex items-center gap-2">
-        <Flame className="w-4 h-4 text-orange-500" />
-        <span className="mono-font text-sm text-stone-300">{stats.totalSessions} sesiones</span>
+      
+      {/* Live indicator row */}
+      <div className="px-5 pb-4 flex items-center gap-4 border-b border-stone-800/60">
+        <div className="flex items-center gap-1.5">
+          <Flame className="w-3.5 h-3.5 text-orange-500" />
+          <span className="mono-font text-xs text-stone-300">
+            <span className="font-bold text-white">{stats.totalSessions}</span>
+            <span className="text-stone-500"> sesiones</span>
+          </span>
+        </div>
+        {daysSince !== null && (
+          <div className="flex items-center gap-1.5">
+            <div className={`w-1.5 h-1.5 rounded-full ${daysSince <= 1 ? 'bg-lime-400 glow-pulse' : daysSince <= 3 ? 'bg-amber-400' : 'bg-stone-600'}`} />
+            <span className="mono-font text-xs text-stone-500">
+              {daysSince === 0 ? 'Entrenaste hoy' : daysSince === 1 ? 'Ayer' : `hace ${daysSince}d`}
+            </span>
+          </div>
+        )}
+        {todayWorkout && (
+          <div className="ml-auto flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full today-pulse" style={{ background: todayWorkout.accent }} />
+            <span className="text-[10px] uppercase tracking-widest body-font font-bold" style={{ color: todayWorkout.accent }}>
+              Toca {todayWorkout.name.split(' ')[1]}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1189,7 +1269,7 @@ function Header({ stats, today }) {
 function DayTabs({ selected, onSelect, today }) {
   const todayWorkout = DAY_TO_WORKOUT[today];
   return (
-    <div className="px-5 py-4 grid grid-cols-3 gap-2">
+    <div className="px-5 pt-4 pb-3 grid grid-cols-3 gap-2">
       {Object.values(WORKOUTS).map((w) => {
         const isSelected = selected === w.id;
         const isToday = todayWorkout === w.id;
@@ -1197,18 +1277,22 @@ function DayTabs({ selected, onSelect, today }) {
           <button
             key={w.id}
             onClick={() => onSelect(w.id)}
-            className={`relative p-3 rounded-lg border transition-all text-left ${
+            className={`relative p-3 rounded-xl border transition-all text-left button-tap overflow-hidden ${
               isSelected 
-                ? 'bg-stone-900 border-stone-600' 
+                ? 'bg-stone-900/80 border-stone-600' 
                 : 'bg-stone-950/60 border-stone-800/80 hover:border-stone-700'
             }`}
-            style={isSelected ? { borderColor: w.accent + '80', boxShadow: `0 0 0 1px ${w.accent}40` } : {}}
+            style={isSelected ? { 
+              borderColor: w.accent + '60', 
+              boxShadow: `0 0 0 1px ${w.accent}30, 0 8px 24px -8px ${w.accent}25`,
+              background: `linear-gradient(180deg, ${w.accent}10, transparent 80%)`,
+            } : {}}
           >
             {isToday && (
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full today-pulse" style={{ background: w.accent }} />
+              <div className="absolute top-2 right-2 w-2 h-2 rounded-full today-pulse" style={{ background: w.accent }} />
             )}
             <div className="display-font text-2xl leading-none" style={{ color: isSelected ? w.accent : '#a8a29e' }}>{w.name}</div>
-            <div className="text-[10px] uppercase tracking-wider mt-1.5 text-stone-500 body-font font-semibold leading-tight">{w.subtitle}</div>
+            <div className="text-[10px] uppercase tracking-wider mt-1.5 text-stone-500 body-font font-semibold leading-tight line-clamp-2 min-h-[24px]">{w.subtitle}</div>
             <div className="text-[10px] mt-1 text-stone-600 body-font">{w.suggestedDay}</div>
           </button>
         );
@@ -1220,7 +1304,7 @@ function DayTabs({ selected, onSelect, today }) {
 function SetRow({ setIdx, setData, lastSet, isTime, accent, onChange, onToggle }) {
   const labels = isTime ? ['SEG', 'NOTA'] : ['KG', 'REPS'];
   return (
-    <div className={`grid grid-cols-[28px_1fr_1fr_44px] gap-2 items-center py-2 px-3 rounded-md transition-colors ${setData.done ? 'bg-stone-900/50' : 'hover:bg-stone-900/30'}`}>
+    <div className={`grid grid-cols-[28px_1fr_1fr_44px] gap-2 items-center py-1.5 px-3 rounded-lg transition-colors ${setData.done ? 'bg-stone-900/60' : 'hover:bg-stone-900/30'}`}>
       <div className="display-font text-stone-500 text-base text-center">{setIdx + 1}</div>
       <div className="relative">
         <input
@@ -1229,7 +1313,7 @@ function SetRow({ setIdx, setData, lastSet, isTime, accent, onChange, onToggle }
           value={setData.weight}
           onChange={(e) => onChange('weight', e.target.value)}
           placeholder={lastSet?.weight ?? labels[0]}
-          className="number-input w-full bg-stone-900 border border-stone-800 rounded px-2 py-1.5 mono-font text-sm text-stone-100 placeholder:text-stone-600 focus:outline-none focus:border-stone-600"
+          className="number-input w-full bg-stone-900/80 border border-stone-800 rounded-lg px-2.5 py-2 mono-font text-sm text-stone-100 placeholder:text-stone-600 focus:outline-none focus:border-stone-600 focus:bg-stone-900"
         />
       </div>
       <div className="relative">
@@ -1239,15 +1323,16 @@ function SetRow({ setIdx, setData, lastSet, isTime, accent, onChange, onToggle }
           value={setData.reps}
           onChange={(e) => onChange('reps', e.target.value)}
           placeholder={lastSet?.reps ?? labels[1]}
-          className="number-input w-full bg-stone-900 border border-stone-800 rounded px-2 py-1.5 mono-font text-sm text-stone-100 placeholder:text-stone-600 focus:outline-none focus:border-stone-600"
+          className="number-input w-full bg-stone-900/80 border border-stone-800 rounded-lg px-2.5 py-2 mono-font text-sm text-stone-100 placeholder:text-stone-600 focus:outline-none focus:border-stone-600 focus:bg-stone-900"
         />
       </div>
       <button
         onClick={onToggle}
-        className={`w-11 h-9 rounded flex items-center justify-center transition-all ${setData.done ? 'done-pop' : ''}`}
+        className={`button-tap w-11 h-10 rounded-lg flex items-center justify-center transition-all ${setData.done ? 'done-pop' : ''}`}
         style={{
           background: setData.done ? accent : 'transparent',
           border: `1.5px solid ${setData.done ? accent : '#44403c'}`,
+          boxShadow: setData.done ? `0 0 16px -2px ${accent}60` : 'none',
         }}
       >
         <Check className={`w-4 h-4 ${setData.done ? 'text-stone-950' : 'text-stone-600'}`} strokeWidth={3} />
@@ -1260,16 +1345,26 @@ function ExerciseCard({ exercise, sessionData, lastSessionData, accent, onUpdate
   const completed = sessionData.sets.filter(s => s.done).length;
   const total = sessionData.sets.length;
   const lastSets = lastSessionData?.exercises[exercise.id]?.sets ?? [];
+  const isComplete = completed === total && total > 0;
   
   return (
-    <div className="bg-stone-950/70 border border-stone-800/80 rounded-xl overflow-hidden">
-      <div className="px-4 pt-4 pb-3 flex items-start justify-between gap-3">
+    <div 
+      className="card-surface rounded-xl overflow-hidden card-hover relative"
+      style={isComplete ? { borderColor: accent + '50', boxShadow: `0 0 0 1px ${accent}20` } : {}}
+    >
+      {/* Accent strip left edge */}
+      <div 
+        className="absolute left-0 top-0 bottom-0 w-[3px] transition-opacity"
+        style={{ background: accent, opacity: isComplete ? 1 : 0.4 }}
+      />
+      
+      <div className="pl-4 pr-4 pt-4 pb-3 flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <h3 className="display-font text-2xl text-white leading-tight">{exercise.name}</h3>
-          <p className="text-[11px] text-stone-500 mt-0.5 body-font font-medium uppercase tracking-wide">{exercise.muscles}</p>
-          <div className="flex items-center gap-3 mt-2">
+          <h3 className="display-font text-xl sm:text-2xl text-white leading-tight">{exercise.name}</h3>
+          <p className="text-[10px] text-stone-500 mt-0.5 body-font font-medium uppercase tracking-wide">{exercise.muscles}</p>
+          <div className="flex items-center gap-3 mt-2 flex-wrap">
             <div className="mono-font text-xs text-stone-300">
-              <span style={{ color: accent }}>{exercise.sets}</span>
+              <span style={{ color: accent }} className="font-bold">{exercise.sets}</span>
               <span className="text-stone-600"> × </span>
               <span>{exercise.reps}</span>
             </div>
@@ -1278,7 +1373,7 @@ function ExerciseCard({ exercise, sessionData, lastSessionData, accent, onUpdate
               {exercise.rest}
             </div>
             <div className="ml-auto flex items-center gap-1 mono-font text-xs">
-              <span style={{ color: completed === total ? accent : '#78716c' }}>{completed}</span>
+              <span className="font-bold" style={{ color: completed === total && total > 0 ? accent : '#78716c' }}>{completed}</span>
               <span className="text-stone-700">/</span>
               <span className="text-stone-500">{total}</span>
             </div>
@@ -1286,14 +1381,14 @@ function ExerciseCard({ exercise, sessionData, lastSessionData, accent, onUpdate
         </div>
         <button
           onClick={() => onShowDemo(exercise)}
-          className="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 bg-stone-900 hover:bg-stone-800 border border-stone-800 rounded text-[11px] body-font font-bold uppercase tracking-wider text-stone-300"
+          className="button-tap shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 bg-stone-900/80 hover:bg-stone-800 border border-stone-800 rounded-lg text-[11px] body-font font-bold uppercase tracking-wider text-stone-300"
         >
           <Eye className="w-3.5 h-3.5" />
           Técnica
         </button>
       </div>
       
-      <div className="px-2 pb-2 border-t border-stone-900/80">
+      <div className="pl-3 pr-2 pb-2 border-t border-stone-900/80">
         <div className="grid grid-cols-[28px_1fr_1fr_44px] gap-2 px-3 pt-2 pb-1">
           <div></div>
           <div className="text-[9px] uppercase tracking-widest text-stone-600 body-font font-bold">{exercise.isTime ? 'Seg' : 'Kg'}</div>
@@ -1314,8 +1409,11 @@ function ExerciseCard({ exercise, sessionData, lastSessionData, accent, onUpdate
         ))}
         
         {lastSets.length > 0 && lastSets.some(s => s.weight) && (
-          <div className="mt-2 mx-3 px-3 py-2 rounded bg-stone-900/40 border border-stone-900">
-            <div className="text-[9px] uppercase tracking-widest text-stone-600 body-font font-bold mb-1">Última sesión</div>
+          <div className="mt-2 mx-3 px-3 py-2 rounded-lg bg-stone-900/40 border border-stone-900">
+            <div className="text-[9px] uppercase tracking-widest text-stone-600 body-font font-bold mb-1 flex items-center gap-1">
+              <History className="w-2.5 h-2.5" />
+              Última sesión
+            </div>
             <div className="flex flex-wrap gap-x-3 gap-y-0.5">
               {lastSets.map((s, i) => s.weight && (
                 <span key={i} className="mono-font text-[11px] text-stone-400">
@@ -1333,20 +1431,23 @@ function ExerciseCard({ exercise, sessionData, lastSessionData, accent, onUpdate
 
 function FinisherCard({ finisher, accent, onShowDemo }) {
   return (
-    <div className="rounded-xl overflow-hidden border" style={{ borderColor: accent + '50' }}>
-      <div className="px-4 py-3 hatched flex items-center gap-2" style={{ background: accent + '15' }}>
+    <div className="rounded-xl overflow-hidden border relative" style={{ borderColor: accent + '40' }}>
+      <div 
+        className="px-4 py-3 hatched flex items-center gap-2 relative" 
+        style={{ background: `linear-gradient(90deg, ${accent}20, ${accent}08)` }}
+      >
         <Zap className="w-4 h-4" style={{ color: accent }} />
-        <span className="display-font text-lg" style={{ color: accent }}>FINISHER METABÓLICO</span>
+        <span className="display-font text-lg tracking-wider" style={{ color: accent }}>FINISHER METABÓLICO</span>
       </div>
-      <div className="p-4 bg-stone-950/70">
+      <div className="p-4 card-surface">
         <div className="display-font text-2xl text-white leading-tight">{finisher.name}</div>
-        <p className="text-sm text-stone-400 body-font mt-1.5">{finisher.work}</p>
+        <p className="text-sm text-stone-400 body-font mt-1.5 leading-snug">{finisher.work}</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {finisher.anims.map((a) => (
             <button
               key={a.type}
               onClick={() => onShowDemo({ name: a.name, anim: a.type, tips: [], muscles: '' })}
-              className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-900 hover:bg-stone-800 border border-stone-800 rounded text-[11px] body-font font-semibold text-stone-300"
+              className="button-tap flex items-center gap-1.5 px-2.5 py-1.5 bg-stone-900/80 hover:bg-stone-800 border border-stone-800 rounded-lg text-[11px] body-font font-semibold text-stone-300"
             >
               <Eye className="w-3 h-3" />
               {a.name}
@@ -1361,25 +1462,29 @@ function FinisherCard({ finisher, accent, onShowDemo }) {
 function DemoModal({ exercise, accent, onClose }) {
   if (!exercise) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-sm slide-up" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md fade-in" onClick={onClose}>
       <div
-        className="bg-stone-950 border-t sm:border border-stone-800 sm:rounded-2xl w-full sm:max-w-md max-h-[92vh] overflow-y-auto"
+        className="modal-sheet bg-stone-950 border-t sm:border border-stone-800 sm:rounded-2xl w-full sm:max-w-md overflow-y-auto pb-safe slide-up"
         onClick={(e) => e.stopPropagation()}
-        style={{ boxShadow: `0 0 60px ${accent}20` }}
+        style={{ boxShadow: `0 0 80px ${accent}25` }}
       >
-        <div className="sticky top-0 bg-stone-950 border-b border-stone-800 px-5 py-3 flex items-center justify-between z-10">
-          <div>
+        <div className="sticky top-0 bg-stone-950/95 backdrop-blur-md border-b border-stone-800 px-5 py-3 flex items-center justify-between z-10">
+          <div className="flex-1 min-w-0">
             <div className="text-[10px] uppercase tracking-widest body-font font-bold" style={{ color: accent }}>Técnica</div>
-            <h2 className="display-font text-2xl text-white leading-tight">{exercise.name}</h2>
+            <h2 className="display-font text-xl sm:text-2xl text-white leading-tight truncate">{exercise.name}</h2>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg bg-stone-900 hover:bg-stone-800">
+          <button onClick={onClose} className="button-tap shrink-0 ml-3 w-9 h-9 rounded-full bg-stone-900 hover:bg-stone-800 flex items-center justify-center">
             <X className="w-4 h-4 text-stone-400" />
           </button>
         </div>
         
         <div className="p-5">
-          <div className="aspect-square w-full max-w-xs mx-auto bg-gradient-to-br from-stone-900 to-stone-950 rounded-xl border border-stone-800 p-4 relative overflow-hidden">
+          <div className="aspect-square w-full max-w-xs mx-auto bg-gradient-to-br from-stone-900 to-stone-950 rounded-2xl border border-stone-800 p-4 relative overflow-hidden shadow-2xl">
             <div className="absolute inset-0 hatched opacity-40" />
+            <div 
+              className="absolute -inset-1 opacity-20 blur-3xl pointer-events-none" 
+              style={{ background: `radial-gradient(circle at center, ${accent}, transparent 60%)` }}
+            />
             <div className="relative w-full h-full">
               <ExerciseAnim type={exercise.anim} accent={accent} />
             </div>
@@ -1394,11 +1499,11 @@ function DemoModal({ exercise, accent, onClose }) {
           
           {exercise.tips?.length > 0 && (
             <div className="mt-5">
-              <div className="text-[10px] uppercase tracking-widest text-stone-500 body-font font-bold mb-2">Puntos clave</div>
-              <ul className="space-y-2">
+              <div className="text-[10px] uppercase tracking-widest text-stone-500 body-font font-bold mb-2.5">Puntos clave</div>
+              <ul className="space-y-2.5">
                 {exercise.tips.map((tip, i) => (
-                  <li key={i} className="flex gap-2.5 text-sm text-stone-300 body-font leading-snug">
-                    <span className="display-font shrink-0 mt-0.5" style={{ color: accent }}>{String(i + 1).padStart(2, '0')}</span>
+                  <li key={i} className="flex gap-3 text-sm text-stone-300 body-font leading-snug">
+                    <span className="display-font shrink-0 mt-0.5 text-lg leading-none" style={{ color: accent }}>{String(i + 1).padStart(2, '0')}</span>
                     <span>{tip}</span>
                   </li>
                 ))}
@@ -1413,25 +1518,30 @@ function DemoModal({ exercise, accent, onClose }) {
 
 function CompletionBanner({ workout, onSave, onReset }) {
   return (
-    <div className="rounded-xl p-5 border-2 border-dashed text-center" style={{ borderColor: workout.accent + '60', background: workout.accent + '08' }}>
-      <Trophy className="w-8 h-8 mx-auto mb-2" style={{ color: workout.accent }} />
-      <div className="display-font text-2xl text-white">¡SESIÓN COMPLETA!</div>
-      <p className="text-sm text-stone-400 body-font mt-1">Guarda tu progreso para verlo en la próxima.</p>
-      <div className="flex gap-2 mt-4 justify-center">
-        <button
-          onClick={onSave}
-          className="display-font px-6 py-2.5 rounded-lg text-stone-950 text-lg"
-          style={{ background: workout.accent }}
-        >
-          GUARDAR SESIÓN
-        </button>
-        <button
-          onClick={onReset}
-          className="px-3 py-2.5 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-800 text-stone-400"
-          title="Empezar de nuevo"
-        >
-          <RotateCcw className="w-4 h-4" />
-        </button>
+    <div className="rounded-2xl p-5 border-2 border-dashed text-center relative overflow-hidden" style={{ borderColor: workout.accent + '60', background: workout.accent + '08' }}>
+      <div className="absolute inset-0 opacity-30 blur-3xl pointer-events-none" style={{ background: `radial-gradient(circle at center, ${workout.accent}40, transparent 70%)` }} />
+      <div className="relative">
+        <div className="w-14 h-14 mx-auto mb-3 rounded-full flex items-center justify-center" style={{ background: workout.accent + '25' }}>
+          <Trophy className="w-7 h-7" style={{ color: workout.accent }} />
+        </div>
+        <div className="display-font text-3xl text-white leading-none">¡SESIÓN COMPLETA!</div>
+        <p className="text-sm text-stone-400 body-font mt-2">Guarda tu progreso para verlo en la próxima.</p>
+        <div className="flex gap-2 mt-4 justify-center">
+          <button
+            onClick={onSave}
+            className="button-tap display-font px-7 py-3 rounded-lg text-stone-950 text-lg shadow-lg tracking-wider"
+            style={{ background: workout.accent, boxShadow: `0 8px 24px -6px ${workout.accent}80` }}
+          >
+            GUARDAR SESIÓN
+          </button>
+          <button
+            onClick={onReset}
+            className="button-tap px-3 py-3 rounded-lg bg-stone-900 hover:bg-stone-800 border border-stone-800 text-stone-400"
+            title="Empezar de nuevo"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1443,13 +1553,16 @@ function CompletionBanner({ workout, onSave, onReset }) {
 
 function StatCard({ label, value, sub, icon: Icon, accent }) {
   return (
-    <div className="bg-stone-950/70 border border-stone-800/80 rounded-xl p-3.5 flex flex-col">
-      <div className="flex items-center gap-1.5 mb-1.5">
-        <Icon className="w-3.5 h-3.5" style={{ color: accent }} />
-        <span className="text-[9px] uppercase tracking-widest text-stone-500 body-font font-bold">{label}</span>
+    <div className="card-surface rounded-xl p-3.5 flex flex-col relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-16 h-16 opacity-10 blur-2xl rounded-full" style={{ background: accent }} />
+      <div className="relative">
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <Icon className="w-3.5 h-3.5" style={{ color: accent }} />
+          <span className="text-[9px] uppercase tracking-widest text-stone-500 body-font font-bold">{label}</span>
+        </div>
+        <div className="display-font text-3xl text-white leading-none">{value}</div>
+        {sub && <div className="text-[10px] text-stone-500 body-font mt-1">{sub}</div>}
       </div>
-      <div className="display-font text-3xl text-white leading-none">{value}</div>
-      {sub && <div className="text-[10px] text-stone-500 body-font mt-1">{sub}</div>}
     </div>
   );
 }
@@ -1603,10 +1716,30 @@ function StatsView({ state }) {
   
   if (!allSessions.length) {
     return (
-      <div className="px-5 py-10 text-center">
-        <BarChart3 className="w-12 h-12 text-stone-700 mx-auto mb-3" />
-        <div className="display-font text-2xl text-stone-400">SIN DATOS AÚN</div>
-        <p className="text-sm text-stone-500 body-font mt-2">Completa y guarda tu primera sesión para empezar a ver progreso.</p>
+      <div className="px-5 py-12 flex flex-col items-center text-center">
+        <div className="relative mb-6">
+          <div className="absolute inset-0 bg-orange-500/10 blur-2xl rounded-full" />
+          <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-stone-900 to-stone-950 border border-stone-800 flex items-center justify-center shadow-xl">
+            <TrendingUp className="w-10 h-10 text-stone-600" strokeWidth={1.5} />
+          </div>
+        </div>
+        <div className="display-font text-3xl text-white leading-tight">SIN DATOS<br/><span className="text-stone-600">AÚN</span></div>
+        <p className="text-sm text-stone-500 body-font mt-3 max-w-xs leading-relaxed">
+          Completa y guarda tu primera sesión para empezar a ver gráficas de progresión, récords personales y volumen semanal.
+        </p>
+        {/* Preview of what's coming */}
+        <div className="mt-6 w-full max-w-xs opacity-30 pointer-events-none">
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="h-16 rounded-xl bg-stone-900/50 border border-stone-800/50" />
+            ))}
+          </div>
+          <div className="h-24 rounded-xl bg-stone-900/50 border border-stone-800/50 flex items-end justify-around p-3 gap-1">
+            {[40, 60, 45, 75, 55, 85, 70].map((h, i) => (
+              <div key={i} className="flex-1 bg-gradient-to-t from-stone-700 to-stone-800 rounded" style={{ height: `${h}%` }} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -1793,10 +1926,36 @@ function HistoryView({ state, onDeleteSession }) {
   
   if (!allSessions.length) {
     return (
-      <div className="px-5 py-10 text-center">
-        <History className="w-12 h-12 text-stone-700 mx-auto mb-3" />
-        <div className="display-font text-2xl text-stone-400">SIN HISTORIAL</div>
-        <p className="text-sm text-stone-500 body-font mt-2">Completa una sesión y guárdala para que aparezca aquí.</p>
+      <div className="px-5 py-12 flex flex-col items-center text-center">
+        <div className="relative mb-6">
+          <div className="absolute inset-0 bg-orange-500/10 blur-2xl rounded-full" />
+          <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-stone-900 to-stone-950 border border-stone-800 flex items-center justify-center shadow-xl">
+            <History className="w-10 h-10 text-stone-600" strokeWidth={1.5} />
+          </div>
+        </div>
+        <div className="display-font text-3xl text-white leading-tight">SIN HISTORIAL<br/><span className="text-stone-600">AÚN</span></div>
+        <p className="text-sm text-stone-500 body-font mt-3 max-w-xs leading-relaxed">
+          Completa tu primera sesión y guárdala. Aquí verás todas tus sesiones agrupadas por semana, con volumen y detalle de cada serie.
+        </p>
+        <div className="mt-6 flex items-center gap-2 text-xs text-stone-600 body-font">
+          <div className="w-6 h-px bg-stone-800" />
+          <span className="uppercase tracking-widest font-bold">Paso 1 de 3</span>
+          <div className="w-6 h-px bg-stone-800" />
+        </div>
+        <div className="mt-5 text-[11px] text-stone-500 body-font leading-relaxed max-w-xs">
+          <div className="flex items-center gap-2.5 py-1.5">
+            <div className="w-5 h-5 rounded-full bg-stone-900 border border-stone-800 flex items-center justify-center text-[10px] display-font text-orange-500">1</div>
+            <span>Ve a <span className="text-stone-300 font-semibold">Entrenar</span> y registra cada serie.</span>
+          </div>
+          <div className="flex items-center gap-2.5 py-1.5">
+            <div className="w-5 h-5 rounded-full bg-stone-900 border border-stone-800 flex items-center justify-center text-[10px] display-font text-orange-500">2</div>
+            <span>Termina y toca <span className="text-stone-300 font-semibold">Guardar sesión</span>.</span>
+          </div>
+          <div className="flex items-center gap-2.5 py-1.5">
+            <div className="w-5 h-5 rounded-full bg-stone-900 border border-stone-800 flex items-center justify-center text-[10px] display-font text-orange-500">3</div>
+            <span>Regresa aquí y ve tu progreso.</span>
+          </div>
+        </div>
       </div>
     );
   }
@@ -1850,8 +2009,8 @@ function BottomNav({ active, onChange }) {
     { id: 'history', label: 'Historial', icon: History },
   ];
   return (
-    <div className="sticky bottom-0 z-40 bg-stone-950/95 backdrop-blur-md border-t border-stone-800">
-      <div className="max-w-md mx-auto grid grid-cols-3">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-stone-950/95 backdrop-blur-xl border-t border-stone-800/80 pb-safe">
+      <div className="max-w-md md:max-w-lg mx-auto grid grid-cols-3">
         {tabs.map(t => {
           const Icon = t.icon;
           const isActive = active === t.id;
@@ -1859,11 +2018,15 @@ function BottomNav({ active, onChange }) {
             <button
               key={t.id}
               onClick={() => onChange(t.id)}
-              className="py-3 flex flex-col items-center gap-1 transition-colors relative"
+              className="button-tap py-2.5 flex flex-col items-center gap-1 transition-colors relative"
             >
-              {isActive && <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-orange-500 rounded-b-full" />}
-              <Icon className={`w-5 h-5 ${isActive ? 'text-orange-500' : 'text-stone-600'}`} />
-              <span className={`text-[10px] uppercase tracking-wider body-font font-bold ${isActive ? 'text-orange-500' : 'text-stone-600'}`}>{t.label}</span>
+              {isActive && (
+                <>
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-[2px] bg-orange-500 rounded-b-full shadow-[0_0_8px_rgba(249,115,22,0.6)]" />
+                </>
+              )}
+              <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-orange-500' : 'text-stone-600'}`} strokeWidth={isActive ? 2.5 : 2} />
+              <span className={`text-[10px] uppercase tracking-wider body-font font-bold transition-colors ${isActive ? 'text-orange-500' : 'text-stone-600'}`}>{t.label}</span>
             </button>
           );
         })}
@@ -1986,33 +2149,46 @@ export default function App() {
   };
   
   const progressPct = completion.total ? Math.round((completion.done / completion.total) * 100) : 0;
+  const daysSince = daysSinceLastSession(state);
   
   return (
-    <div className="gym-app relative pb-16">
+    <div className="gym-app relative">
       <Stylesheet />
+      <div className="ambient-bg" />
       <div className="grain" />
+      <div className="side-decor-l hidden md:block" />
+      <div className="side-decor-r hidden md:block" />
       
-      <div className="max-w-md mx-auto relative">
-        <Header stats={state.stats} today={today} />
+      <div className="max-w-md md:max-w-lg mx-auto relative z-10 pb-32">
+        <Header stats={state.stats} today={today} daysSince={daysSince} />
         
         {activeTab === 'train' && (
-          <>
+          <div className="fade-in">
             <DayTabs selected={selectedDay} onSelect={setSelectedDay} today={today} />
             
             {/* Workout focus header */}
             <div className="px-5 pb-3">
-              <div className="flex items-center justify-between mb-2">
-                <div>
+              <div className="flex items-center justify-between mb-2 gap-3">
+                <div className="min-w-0">
                   <div className="text-[10px] uppercase tracking-widest text-stone-600 body-font font-bold">Enfoque</div>
-                  <div className="display-font text-3xl text-white">{workout.subtitle}</div>
+                  <div className="display-font text-2xl sm:text-3xl text-white leading-tight truncate">{workout.subtitle}</div>
                 </div>
-                <div className="text-right">
-                  <div className="mono-font text-3xl" style={{ color: workout.accent }}>{progressPct}%</div>
-                  <div className="text-[10px] uppercase tracking-widest text-stone-600 body-font font-bold">Completado</div>
+                <div className="text-right shrink-0">
+                  <div className="mono-font text-3xl sm:text-4xl font-bold leading-none" style={{ color: workout.accent }}>{progressPct}<span className="text-xl">%</span></div>
+                  <div className="text-[10px] uppercase tracking-widest text-stone-600 body-font font-bold mt-1">
+                    {completion.done}/{completion.total} series
+                  </div>
                 </div>
               </div>
               <div className="h-1.5 bg-stone-900 rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-500" style={{ width: `${progressPct}%`, background: workout.accent }} />
+                <div 
+                  className="h-full rounded-full transition-all duration-500" 
+                  style={{ 
+                    width: `${progressPct}%`, 
+                    background: `linear-gradient(90deg, ${workout.accent}, ${workout.accent}cc)`,
+                    boxShadow: progressPct > 0 ? `0 0 12px ${workout.accent}80` : 'none',
+                  }} 
+                />
               </div>
             </div>
             
@@ -2043,19 +2219,19 @@ export default function App() {
               ) : (
                 <button
                   onClick={resetSession}
-                  className="w-full py-2.5 text-xs uppercase tracking-widest text-stone-600 body-font font-bold hover:text-stone-400 flex items-center justify-center gap-2"
+                  className="button-tap w-full py-2.5 text-xs uppercase tracking-widest text-stone-600 body-font font-bold hover:text-stone-400 flex items-center justify-center gap-2"
                 >
                   <RotateCcw className="w-3 h-3" />
                   Reiniciar sesión
                 </button>
               )}
             </div>
-          </>
+          </div>
         )}
         
-        {activeTab === 'stats' && <StatsView state={state} />}
+        {activeTab === 'stats' && <div className="fade-in"><StatsView state={state} /></div>}
         
-        {activeTab === 'history' && <HistoryView state={state} onDeleteSession={deleteSession} />}
+        {activeTab === 'history' && <div className="fade-in"><HistoryView state={state} onDeleteSession={deleteSession} /></div>}
       </div>
       
       <BottomNav active={activeTab} onChange={setActiveTab} />
